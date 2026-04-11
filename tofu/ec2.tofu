@@ -2,10 +2,10 @@ module "ec2" {
   source  = "terraform-aws-modules/ec2-instance/aws"
   version = "v5.8.0"
 
-  create = local.vars.ec2.ssm_proxy.create
+  count = length(local.ec2_vars)
 
-  name          = "${terraform.workspace}-ssm-proxy"
-  instance_type = "t4g.nano"
+  name          = "${terraform.workspace}-${local.ec2_vars[count.index]["name"]}"
+  instance_type = try(local.ec2_vars[count.index]["instance_type"], "t4g.nano")
   ami           = data.aws_ami.al2023_arm64.id
 
   subnet_id                   = element(module.vpc.private_subnets, 0)
@@ -16,15 +16,9 @@ module "ec2" {
     AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
   }
 
-  root_block_device = [
-    {
-      encrypted   = true
-      volume_type = "gp3"
-      volume_size = 8
-    }
-  ]
+  root_block_device = try(local.ec2_vars[count.index]["root_block_device"], [])
 
   tags = {
-    Name = "${terraform.workspace}-ssm-proxy"
+    Name = "${terraform.workspace}-${local.ec2_vars[count.index]["name"]}"
   }
 }

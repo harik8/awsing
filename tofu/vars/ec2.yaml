@@ -1,1 +1,2 @@
 - name: ssm-proxy
+  create: false

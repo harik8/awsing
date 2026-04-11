@@ -4,6 +4,8 @@ module "ec2" {
 
   count = length(local.ec2_vars)
 
+  create = local.ec2_vars[count.index]["create"]
+
   name          = "${terraform.workspace}-${local.ec2_vars[count.index]["name"]}"
   instance_type = try(local.ec2_vars[count.index]["instance_type"], "t4g.nano")
   ami           = data.aws_ami.al2023_arm64.id

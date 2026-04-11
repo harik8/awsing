@@ -1,4 +1,6 @@
 - name: portfolio-website
+  repos:
+    - "harik8/hariprasad.dev:*"
   description: "IAM policy for GitHub OIDC role to access ${workspace}-portfolio-website S3 bucket"
   policy: |
     {

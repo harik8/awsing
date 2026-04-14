@@ -12,15 +12,6 @@ eks:
   version: v20.33.1
   create: false
   cluster_version: 1.32
-  sc:
-    gp3: false
-    efs: false
-  fargate_profile:
-    - name: "core-dns"
-      selectors:
-        - namespace: "kube-system"
-          labels:
-            "eks.amazonaws.com/component": "coredns"
 iam:
   version: v5.60.0
 rds:

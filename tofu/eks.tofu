@@ -6,66 +6,44 @@ module "eks" {
 
   cluster_name                             = terraform.workspace
   cluster_version                          = local.vars.eks.cluster_version
-  cluster_endpoint_public_access           = true
-  create_kms_key                           = true
-  enable_cluster_creator_admin_permissions = true
+  cluster_endpoint_public_access           = local.eks_vars.cluster.endpoint_public_access
+  create_kms_key                           = local.eks_vars.cluster.create_kms_key
+  enable_cluster_creator_admin_permissions = local.eks_vars.cluster.enable_cluster_creator_admin_permissions
   control_plane_subnet_ids                 = module.vpc.private_subnets
   vpc_id                                   = module.vpc.vpc_id
   subnet_ids                               = module.vpc.private_subnets
 
-  access_entries = {
-    aws_admin = {
-      kubernetes_groups = []
-      user_name         = "AWSAdmin"
-      principal_arn     = "arn:aws:iam::${var.account_id}:role/${var.pac_role}"
-
-      policy_associations = {
-        aws_admin = {
-          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-          access_scope = {
-            type = "cluster"
-          }
-        }
-      }
-    }
-  }
+  access_entries = local.eks_vars.cluster.access_entries
 
   cluster_addons = {
     coredns = {
-      most_recent  = true,
-      compute_type = "fargate",
+      most_recent  = local.eks_vars.cluster.addons.coredns.most_recent
+      compute_type = local.eks_vars.cluster.addons.coredns.compute_type
       configuration_values = jsonencode({
         autoScaling = {
-          enabled     = true
-          minReplicas = 2
-          maxReplicas = 2
+          enabled     = local.eks_vars.cluster.addons.coredns.autoscaling.enabled
+          minReplicas = local.eks_vars.cluster.addons.coredns.autoscaling.min_replicas
+          maxReplicas = local.eks_vars.cluster.addons.coredns.autoscaling.max_replicas
         }
       })
     }
     kube-proxy = {
-      most_recent = true
+      most_recent = local.eks_vars.cluster.addons["kube-proxy"].most_recent
     }
     vpc-cni = {
-      most_recent = true
+      most_recent = local.eks_vars.cluster.addons["vpc-cni"].most_recent
     }
     aws-efs-csi-driver = {
-      most_recent              = true
-      service_account_role_arn = "arn:aws:iam::${var.account_id}:role/${terraform.workspace}-efs-csi"
-      replicaCount             = 1
-      "tolerations" : [
-        {
-          "key" : "application",
-          "effect" : "NO_SCHEDULE",
-          "operator" : "Equal",
-          "value" : "true"
-        }
-      ]
+      most_recent              = local.eks_vars.cluster.addons["aws-efs-csi-driver"].most_recent
+      service_account_role_arn = local.eks_vars.cluster.addons["aws-efs-csi-driver"].service_account_role_arn
+      replicaCount             = local.eks_vars.cluster.addons["aws-efs-csi-driver"].replica_count
+      tolerations              = local.eks_vars.cluster.addons["aws-efs-csi-driver"].tolerations
     }
   }
 }
 
 module "fargate_profile" {
-  for_each = { for profile in local.vars.eks.fargate_profile : profile.name => profile }
+  for_each = { for profile in local.eks_vars.fargate_profile : profile.name => profile }
 
   source  = "terraform-aws-modules/eks/aws//modules/fargate-profile"
   version = local.vars.eks.version
@@ -103,8 +81,7 @@ resource "aws_security_group_rule" "dns_udp" {
 }
 
 resource "kubernetes_storage_class_v1" "gp3" {
-
-  count = local.vars.eks.sc.gp3 ? 1 : 0
+  count = local.eks_vars.sc.gp3 ? 1 : 0
 
   metadata {
     name = "gp3"
@@ -124,8 +101,7 @@ resource "kubernetes_storage_class_v1" "gp3" {
 }
 
 resource "kubernetes_storage_class_v1" "efs" {
-
-  count = local.vars.eks.sc.efs ? 1 : 0
+  count = local.eks_vars.sc.efs ? 1 : 0
 
   metadata {
     name = "efs"
@@ -159,42 +135,21 @@ module "eks_managed_node_group" {
   cluster_primary_security_group_id = module.eks.cluster_primary_security_group_id
   vpc_security_group_ids            = [module.eks.node_security_group_id]
 
-  ami_type = "AL2_ARM_64"
+  ami_type       = local.eks_vars.managed_node_group.ami_type
+  min_size       = local.eks_vars.managed_node_group.min_size
+  max_size       = local.eks_vars.managed_node_group.max_size
+  desired_size   = local.eks_vars.managed_node_group.desired_size
+  instance_types = local.eks_vars.managed_node_group.instance_types
+  capacity_type  = local.eks_vars.managed_node_group.capacity_type
 
-  min_size     = 1
-  max_size     = 1
-  desired_size = 1
-
-  instance_types = ["t4g.small"]
-  capacity_type  = "SPOT"
-
-
-  block_device_mappings = {
-    xvda = {
-      device_name = "/dev/xvda"
-      ebs = {
-        volume_type = "gp3"
-        encrypted   = true
-      }
-    }
-  }
-
-  taints = {
-    dedicated = {
-      key    = "application"
-      value  = "true"
-      effect = "NO_SCHEDULE"
-    }
-  }
-
-  iam_role_additional_policies = {
-    AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
-  }
+  block_device_mappings        = local.eks_vars.managed_node_group.block_device_mappings
+  taints                       = local.eks_vars.managed_node_group.taints
+  iam_role_additional_policies = local.eks_vars.managed_node_group.iam_role_additional_policies
 }
 
 module "irsa_efs_csi" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "v5.60.0"
+  version = local.eks_vars.irsa_iam_version
 
   create_role = local.vars.eks.create && contains(keys(module.eks.cluster_addons), "aws-efs-csi-driver")
 

@@ -16,4 +16,5 @@ locals {
   eventbridge_vars     = yamldecode(file("${path.root}/vars/eventbridge.yaml"))
   rds_vars             = yamldecode(file("${path.root}/vars/rds.yaml"))
   vars                 = yamldecode(file("${path.root}/vars/vars.yaml"))
+  eks_vars             = yamldecode(templatefile("${path.root}/vars/eks.yaml", local.template_vars))
 }

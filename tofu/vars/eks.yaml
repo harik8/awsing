@@ -1,0 +1,91 @@
+---
+cluster:
+  endpoint_public_access: true
+  create_kms_key: true
+  enable_cluster_creator_admin_permissions: true
+  access_entries:
+    aws_admin:
+      kubernetes_groups: []
+      user_name: AWSAdmin
+      principal_arn: "arn:aws:iam::${account_id}:role/${pac_role}"
+      policy_associations:
+        aws_admin:
+          policy_arn: arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy
+          access_scope:
+            type: cluster
+  addons:
+    coredns:
+      most_recent: true
+      compute_type: fargate
+      autoscaling:
+        enabled: true
+        min_replicas: 2
+        max_replicas: 2
+    kube-proxy:
+      most_recent: true
+    vpc-cni:
+      most_recent: true
+    aws-efs-csi-driver:
+      most_recent: true
+      service_account_role_arn: "arn:aws:iam::${account_id}:role/${workspace}-efs-csi"
+      replica_count: 1
+      tolerations:
+        - key: application
+          effect: NO_SCHEDULE
+          operator: Equal
+          value: "true"
+
+fargate_profile:
+  - name: "core-dns"
+    selectors:
+      - namespace: "kube-system"
+        labels:
+          "eks.amazonaws.com/component": "coredns"
+
+sc:
+  gp3: false
+  efs: false
+
+irsa_iam_version: v5.60.0
+
+managed_node_group:
+  ami_type: AL2_ARM_64
+  min_size: 1
+  max_size: 1
+  desired_size: 1
+  instance_types:
+    - t4g.small
+  capacity_type: SPOT
+  block_device_mappings:
+    xvda:
+      device_name: /dev/xvda
+      ebs:
+        volume_type: gp3
+        encrypted: true
+  taints:
+    dedicated:
+      key: application
+      value: "true"
+      effect: NO_SCHEDULE
+  iam_role_additional_policies:
+    AmazonEBSCSIDriverPolicy: arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
+  ami_type: AL2_ARM_64
+  min_size: 1
+  max_size: 1
+  desired_size: 1
+  instance_types:
+    - t4g.small
+  capacity_type: SPOT
+  block_device_mappings:
+    xvda:
+      device_name: /dev/xvda
+      ebs:
+        volume_type: gp3
+        encrypted: true
+  taints:
+    dedicated:
+      key: application
+      value: "true"
+      effect: NO_SCHEDULE
+  iam_role_additional_policies:
+    AmazonEBSCSIDriverPolicy: arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy

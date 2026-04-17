@@ -42,3 +42,6 @@ terraform.rc
 
 # Ignore local lamba builds
 **/tofu/builds/*
+
+# Local setup files
+**/.local/*

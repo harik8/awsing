@@ -17,7 +17,7 @@ module "eks" {
     aws_admin = {
       kubernetes_groups = []
       user_name         = "AWSAdmin"
-      principal_arn     = "arn:aws:iam::${var.account_id}:role/${var.pac_role}"
+      principal_arn     = "arn:aws:iam::${var.account_id}:role/${var.iac_role}"
 
       policy_associations = {
         aws_admin = {

@@ -1,68 +1,41 @@
-data "aws_iam_policy_document" "lambda_aurora_clone" {
-  statement {
-    actions = [
-      "rds:AddTagsToResource",
-      "rds:CreateDBInstance",
-      "rds:RestoreDBClusterToPointInTime"
-    ]
-    effect = "Allow"
-    resources = [
-      "arn:aws:rds:${var.aws_region}:${var.account_id}:cluster:${terraform.workspace}-*",
-      "arn:aws:rds:${var.aws_region}:${var.account_id}:db:${terraform.workspace}-*",
-    ]
-  }
-  statement {
-    actions = [
-      "rds:RestoreDBClusterToPointInTime"
-    ]
-    effect = "Allow"
-    resources = [
-      "arn:aws:rds:${var.aws_region}:${var.account_id}:subgrp:${terraform.workspace}-*",
-    ]
-  }
-  statement {
-    actions = [
-      "rds:DescribeDBClusters"
-    ]
-    effect    = "Allow"
-    resources = ["*"]
-  }
-}
-
-data "aws_iam_policy_document" "lambda_aurora_clone_purge" {
-  statement {
-    actions = [
-      "rds:DescribeDBClusters"
-    ]
-    effect = "Allow"
-    resources = [
-      "*"
-    ]
-  }
-  statement {
-    actions = [
-      "rds:DeleteDBCluster",
-      "rds:DeleteDBInstance"
-    ]
-    effect = "Allow"
-    resources = [
-      "arn:aws:rds:${var.aws_region}:${var.account_id}:cluster:${terraform.workspace}-*-clone-*",
-      "arn:aws:rds:${var.aws_region}:${var.account_id}:db:${terraform.workspace}-*-clone-*"
-    ]
-  }
-}
-
 module "aurora_clone" {
   source  = "terraform-aws-modules/lambda/aws"
   version = "v7.21.1"
 
   create = true
 
-  function_name                     = "${terraform.workspace}-aurora-clone"
-  handler                           = "function.lambda_handler"
-  runtime                           = "python3.13"
-  publish                           = true
-  policy_json                       = data.aws_iam_policy_document.lambda_aurora_clone.json
+  function_name = "${terraform.workspace}-aurora-clone"
+  handler       = "function.lambda_handler"
+  runtime       = "python3.13"
+  publish       = true
+  policy_json = jsonencode(
+    {
+      "Version" : "2012-10-17",
+      "Statement" : [
+        {
+          "Action" : [
+            "rds:RestoreDBClusterToPointInTime",
+            "rds:CreateDBInstance",
+            "rds:AddTagsToResource"
+          ],
+          "Effect" : "Allow",
+          "Resource" : [
+            "arn:aws:rds:${var.aws_region}:${var.account_id}:db:${terraform.workspace}-*",
+            "arn:aws:rds:${var.aws_region}:${var.account_id}:cluster:${terraform.workspace}-*"
+          ]
+        },
+        {
+          "Action" : "rds:RestoreDBClusterToPointInTime",
+          "Effect" : "Allow",
+          "Resource" : "arn:aws:rds:${var.aws_region}:${var.account_id}:subgrp:${terraform.workspace}-*"
+        },
+        {
+          "Action" : "rds:DescribeDBClusters",
+          "Effect" : "Allow",
+          "Resource" : "*"
+        }
+      ]
+  })
   attach_policy_json                = true
   timeout                           = 60
   source_path                       = "${path.module}/src/lambda_aurora_clone/clone"
@@ -74,7 +47,7 @@ module "aurora_clone" {
   }
   allowed_triggers = {
     AllowToInvoke = {
-      principal    = "arn:aws:iam::${var.account_id}:role/${var.pac_role}"
+      principal    = "arn:aws:iam::${var.account_id}:role/${var.iac_role}"
       action       = "lambda:InvokeFunction"
       statement_id = "AllowToInvoke"
     }
@@ -87,11 +60,32 @@ module "aurora_clone_purge" {
 
   create = true
 
-  function_name                     = "${terraform.workspace}-aurora-clone-purge"
-  handler                           = "function.lambda_handler"
-  runtime                           = "python3.13"
-  publish                           = true
-  policy_json                       = data.aws_iam_policy_document.lambda_aurora_clone_purge.json
+  function_name = "${terraform.workspace}-aurora-clone-purge"
+  handler       = "function.lambda_handler"
+  runtime       = "python3.13"
+  publish       = true
+  policy_json = jsonencode(
+    {
+      "Version" : "2012-10-17",
+      "Statement" : [
+        {
+          "Action" : "rds:DescribeDBClusters",
+          "Effect" : "Allow",
+          "Resource" : "*"
+        },
+        {
+          "Action" : [
+            "rds:DeleteDBInstance",
+            "rds:DeleteDBCluster"
+          ],
+          "Effect" : "Allow",
+          "Resource" : [
+            "arn:aws:rds:${var.aws_region}:${var.account_id}:db:${terraform.workspace}-*-clone-*",
+            "arn:aws:rds:${var.aws_region}:${var.account_id}:cluster:${terraform.workspace}-*-clone-*"
+          ]
+        }
+      ]
+  })
   attach_policy_json                = true
   timeout                           = 60
   source_path                       = "${path.module}/src/lambda_aurora_clone/purge"
@@ -140,4 +134,3 @@ module "aurora_clone_purge_eventbridge" {
     ]
   }
 }
-

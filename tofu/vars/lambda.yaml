@@ -1,0 +1,79 @@
+- name: aurora-clone
+  handler: function.lambda_handler
+  runtime: python3.13
+  timeout: 60
+  source_path: src/lambda_aurora_clone/clone
+  cloudwatch_logs_retention_in_days: 1
+  environment_variables:
+    DB_INSTANCE_CLASS: db.t4g.medium
+  allowed_triggers:
+    AllowToInvoke:
+      principal: "arn:aws:iam::${account_id}:role/${pac_role}"
+      action: lambda:InvokeFunction
+      statement_id: AllowToInvoke
+  policy_json: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Sid": "AllowDescribeDBClusters",
+          "Effect": "Allow",
+          "Action": ["rds:DescribeDBClusters"],
+          "Resource": ["*"]
+        },
+        {
+          "Sid": "AllowAuroraClone",
+          "Effect": "Allow",
+          "Action": [
+            "rds:AddTagsToResource",
+            "rds:CreateDBInstance",
+            "rds:RestoreDBClusterToPointInTime"
+          ],
+          "Resource": [
+            "arn:aws:rds:*:${account_id}:cluster:${workspace}-*",
+            "arn:aws:rds:*:${account_id}:db:${workspace}-*"
+          ]
+        },
+        {
+          "Sid": "AllowRestoreSubnetGroup",
+          "Effect": "Allow",
+          "Action": ["rds:RestoreDBClusterToPointInTime"],
+          "Resource": ["arn:aws:rds:*:${account_id}:subgrp:${workspace}-*"]
+        }
+      ]
+    }
+
+- name: aurora-clone-purge
+  handler: function.lambda_handler
+  runtime: python3.13
+  timeout: 60
+  source_path: src/lambda_aurora_clone/purge
+  cloudwatch_logs_retention_in_days: 1
+  environment_variables:
+    STAGE: ${workspace}
+    RETENTION_DAYS: "1"
+  allowed_triggers:
+    AllowEventsBridgeToInvoke:
+      principal: "events.amazonaws.com"
+      source_arn: module.eventbridge.eventbridge_rule_arns["${terraform.workspace}-aurora-clone-purge"]
+  policy_json: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Sid": "AllowDescribeDBClusters",
+          "Effect": "Allow",
+          "Action": ["rds:DescribeDBClusters"],
+          "Resource": ["*"]
+        },
+        {
+          "Sid": "AllowDeleteClone",
+          "Effect": "Allow",
+          "Action": ["rds:DeleteDBCluster", "rds:DeleteDBInstance"],
+          "Resource": [
+            "arn:aws:rds:*:${account_id}:cluster:${workspace}-*-clone-*",
+            "arn:aws:rds:*:${account_id}:db:${workspace}-*-clone-*"
+          ]
+        }
+      ]
+    }

@@ -1,4 +1,0 @@
-- name: aurora-clone-purge
-  description: "Schedule to trigger the aurora clone purge lambda function"
-  schedule_expression: "cron(0 9 ? * MON-FRI *)"
-  target_lambda: aurora-clone-purge

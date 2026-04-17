@@ -1,29 +1,43 @@
-# ---
-# ec2:
-#   ssm_proxy:
-#     create: false
-# ecs:
-#   version: v5.12.1
-#   create: true
-# efs:
-#   create: false
-#   version: v1.8.1
-# eks:
-#   version: v20.33.1
-#   create: false
-#   cluster_version: 1.32
-# iam:
-#   version: v5.60.0
-# rds:
-#   version: v9.16.1
-# s3:
-#   version: v4.11.0
-# security_group:
-#   version: v5.3.1
-# vpc:
-#   version: v5.17.0
-#   create: true
-#   cidr: 10.100.0.0/16
-#   nat_gateway:
-#     enable: false
-#     single: true
+---
+ec2:
+  ssm_proxy:
+    create: false
+ecs:
+  version: v5.12.1
+  create: true
+efs:
+  create: false
+  version: v1.8.1
+eks:
+  version: v20.33.1
+  create: false
+  cluster_version: 1.32
+  sc:
+    gp3: false
+    efs: false
+  fargate_profile:
+    - name: "core-dns"
+      selectors:
+        - namespace: "kube-system"
+          labels:
+            "eks.amazonaws.com/component": "coredns"
+iam:
+  version: v5.60.0
+  github_oidc:
+    repos: ["harik8/sandbox:*","harik8/hariprasad.dev:*"]
+rds:
+  psql:
+    create: false
+    instances:
+      []
+s3:
+  version: v4.11.0
+security_group:
+  version: v5.3.1
+vpc:
+  version: v5.17.0
+  create: true
+  cidr: 10.100.0.0/16
+  nat_gateway:
+    enable: false
+    single: true

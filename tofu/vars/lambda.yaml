@@ -52,6 +52,10 @@
   environment_variables:
     STAGE: ${workspace}
     RETENTION_DAYS: "1"
+  allowed_triggers:
+    AllowEventsBridgeToInvoke:
+      principal: "events.amazonaws.com"
+      source_arn: module.eventbridge.eventbridge_rule_arns["${terraform.workspace}-aurora-clone-purge"]
   policy_json: |
     {
       "Version": "2012-10-17",

@@ -18,7 +18,10 @@ module "ec2" {
     AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
   }
 
-  root_block_device = try(local.ec2_vars[count.index]["root_block_device"], [])
+  root_block_device = try(local.ec2_vars[count.index]["root_block_device"], [{
+    encrypted  = true
+    volume_type = "gp3"
+  }])
 
   tags = {
     Name = "${terraform.workspace}-${local.ec2_vars[count.index]["name"]}"

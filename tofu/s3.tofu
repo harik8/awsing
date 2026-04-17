@@ -10,7 +10,7 @@ module "s3" {
   object_ownership         = try(local.s3_vars[count.index]["object_ownership"], "BucketOwnerPreferred")
 
   attach_policy = can(local.s3_vars[count.index]["policy"])
-  policy        = try(local.s3_vars[count.index]["policy"], {})
+  policy        = try(local.s3_vars[count.index]["policy"], null)
 
   server_side_encryption_configuration = {
     rule = {

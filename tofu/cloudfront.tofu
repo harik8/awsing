@@ -7,7 +7,7 @@ module "cloudfront" {
   aliases = local.cloudfront_vars[count.index]["aliases"]
   comment = try(local.cloudfront_vars[count.index]["comment"], "${terraform.workspace}-${local.cloudfront_vars[count.index]["name"]}")
 
-  create_origin_access_control = can(local.cloudfront_vars[count.index]["create_oac"])
+  create_origin_access_control = try(local.cloudfront_vars[count.index]["create_oac"])
   default_cache_behavior       = local.cloudfront_vars[count.index]["default_cache_behavior"]
   default_root_object          = try(local.cloudfront_vars[count.index]["default_root_object"], "index.html")
   origin                       = local.cloudfront_vars[count.index]["origin"]

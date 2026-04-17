@@ -56,26 +56,14 @@ module "fargate_profile" {
   selectors  = each.value.selectors
 }
 
-resource "aws_security_group_rule" "dns_tcp" {
-  count = local.vars.eks.create ? 1 : 0
+resource "aws_security_group_rule" "dns" {
+  for_each = local.vars.eks.create ? toset(["tcp", "udp"]) : toset([])
 
   description              = "Allow pods to communicate with the CoreDNS on Fargate"
   type                     = "ingress"
   from_port                = 53
   to_port                  = 53
-  protocol                 = "tcp"
-  source_security_group_id = module.eks.node_security_group_id
-  security_group_id        = module.eks.cluster_primary_security_group_id
-}
-
-resource "aws_security_group_rule" "dns_udp" {
-  count = local.vars.eks.create ? 1 : 0
-
-  description              = "Allow pods to communicate with the CoreDNS on Fargate"
-  type                     = "ingress"
-  from_port                = 53
-  to_port                  = 53
-  protocol                 = "udp"
+  protocol                 = each.key
   source_security_group_id = module.eks.node_security_group_id
   security_group_id        = module.eks.cluster_primary_security_group_id
 }

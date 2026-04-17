@@ -69,23 +69,4 @@ managed_node_group:
       effect: NO_SCHEDULE
   iam_role_additional_policies:
     AmazonEBSCSIDriverPolicy: arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
-  ami_type: AL2_ARM_64
-  min_size: 1
-  max_size: 1
-  desired_size: 1
-  instance_types:
-    - t4g.small
-  capacity_type: SPOT
-  block_device_mappings:
-    xvda:
-      device_name: /dev/xvda
-      ebs:
-        volume_type: gp3
-        encrypted: true
-  taints:
-    dedicated:
-      key: application
-      value: "true"
-      effect: NO_SCHEDULE
-  iam_role_additional_policies:
-    AmazonEBSCSIDriverPolicy: arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
+

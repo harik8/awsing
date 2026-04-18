@@ -2,7 +2,7 @@ variable "account_id" {
   description = "The AWS Account ID"
 }
 
-variable "pac_role" {
+variable "iac_role" {
   description = "The IAM role for Platform deployment"
 }
 

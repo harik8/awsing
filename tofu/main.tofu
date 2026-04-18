@@ -12,8 +12,8 @@ provider "aws" {
   region = var.aws_region
 
   assume_role {
-    role_arn     = "arn:aws:iam::${var.account_id}:role/${var.pac_role}"
-    session_name = "${var.pac_role}-${terraform.workspace}"
+    role_arn     = "arn:aws:iam::${var.account_id}:role/${var.iac_role}"
+    session_name = "${var.iac_role}-${terraform.workspace}"
   }
 
   default_tags {
@@ -31,6 +31,6 @@ provider "kubernetes" {
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
     command     = "aws"
-    args        = local.vars.eks.create ? ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--role-arn", "arn:aws:iam::${var.account_id}:role/${var.pac_role}", "--region", var.aws_region] : []
+    args        = local.vars.eks.create ? ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--role-arn", "arn:aws:iam::${var.account_id}:role/${var.iac_role}", "--region", var.aws_region] : []
   }
 }

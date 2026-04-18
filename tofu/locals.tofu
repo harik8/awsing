@@ -7,7 +7,7 @@ locals {
     workspace  = terraform.workspace
   }
 
-  cloudfront_props = yamldecode(templatefile("${path.root}/properties/cloudfront.yaml", local.template_vars))
-  s3_props         = yamldecode(templatefile("${path.root}/properties/s3.yaml", local.template_vars))
-  vars             = yamldecode(file("${path.root}/vars/vars.yaml"))
+  cloudfront_vars = yamldecode(templatefile("${path.root}/vars/cloudfront.yaml", local.template_vars))
+  s3_vars         = yamldecode(templatefile("${path.root}/vars/s3.yaml", local.template_vars))
+  vars            = yamldecode(file("${path.root}/vars/vars.yaml"))
 }

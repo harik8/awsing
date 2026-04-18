@@ -1,6 +1,6 @@
 ---
 ec2:
-  ssm_proxy:
+  - name: ssm-proxy
     create: false
 ecs:
   version: v5.12.1

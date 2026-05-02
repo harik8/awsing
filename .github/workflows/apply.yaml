@@ -49,7 +49,9 @@ jobs:
         tofu_version: 1.6.0
 
     - name: Plan opentofu
-      working-directory: /home/runner/work/awsing/awsing/tofu
       run: |
           export TF_VAR_aws_region=${{ vars.AWS_REGION }}
+          cd tofu
+          pwd
+          ls -lah .
           tofu init -var-file=vars/.vars.tfvars

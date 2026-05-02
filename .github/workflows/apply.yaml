@@ -46,7 +46,7 @@ jobs:
     - name: Setup opentofu  
       uses: opentofu/setup-opentofu@v2
       with:
-        tofu_version: 1.6.0
+        tofu_version: 1.11.2
 
     - name: Plan opentofu
       run: |

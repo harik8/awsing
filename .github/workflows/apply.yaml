@@ -20,7 +20,7 @@ permissions:
   contents: read  # This is required for actions/checkout
         
 jobs:
-  CD:
+  INIT:
     runs-on: ubuntu-slim
 
     steps:
@@ -58,3 +58,18 @@ jobs:
           pwd
           ls -lah .
           tofu init
+
+  PLAN:
+    runs-on: ubuntu-slim
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+
+  APPLY:
+    runs-on: ubuntu-slim
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+

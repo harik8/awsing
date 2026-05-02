@@ -54,4 +54,6 @@ jobs:
         pwd
         ls -lah .
         cd tofu
+        pwd
+        ls -lah .
         tofu init -var-file=vars/.vars.tfvars

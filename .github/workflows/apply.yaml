@@ -51,5 +51,7 @@ jobs:
     - name: Plan opentofu
       run: |
         export TF_VAR_aws_region=${{ vars.AWS_REGION }}
+        pwd
+        ls -lah .
         cd tofu
         tofu init -var-file=vars/.vars.tfvars

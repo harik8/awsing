@@ -51,6 +51,9 @@ jobs:
     - name: Plan opentofu
       run: |
           export TF_VAR_aws_region=${{ vars.AWS_REGION }}
+          export TF_VAR_s3_backend=${{ secrets.TF_VAR_S3_BACKEND }}
+          export TF_VAR_iac_role=${{ secrets.IAC_ROLE }}
+          export TF_VAR_account_id=${{ secrets.ACCOUNT_ID }}
           cd tofu
           pwd
           ls -lah .

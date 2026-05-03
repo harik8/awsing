@@ -27,11 +27,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v6
 
-    - name: Setup opentofu  
-      uses: opentofu/setup-opentofu@v2
-      with:
-        tofu_version: 1.11.2
-
     - name: AWS - Set AWS Credentials
       uses: aws-actions/configure-aws-credentials@v5.1.1
       with:
@@ -48,7 +43,18 @@ jobs:
         role-session-name: github_action
         role-chaining: true
 
-    - name: Tofu Apply
+    - name: Setup opentofu  
+      uses: opentofu/setup-opentofu@v2
+      with:
+        tofu_version: 1.11.2
+        cache: true
+
+    - name: OpenTofu fmt
+      working-directory: tofu
+      run: tofu fmt -check
+      continue-on-error: false
+
+    - name: OpenTofu apply
       working-directory: tofu
       run: |
           export TF_VAR_aws_region=${{ vars.AWS_REGION }}

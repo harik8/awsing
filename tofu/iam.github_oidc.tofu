@@ -75,7 +75,7 @@ module "iam_assumable_role_github_awsing" {
 
   trusted_role_arns = [
     module.iam_github_oidc_role.arn,
-    module.iam_assumable_role_github_awsing.arn
+    module.iam_assumable_role_github_awsing.iam_role_arn
   ]
 
   role_requires_mfa = false

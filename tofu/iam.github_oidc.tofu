@@ -75,7 +75,7 @@ module "iam_assumable_role_github_awsing" {
 
   trusted_role_arns = [
     module.iam_github_oidc_role.arn,
-    module.iam_assumable_role_github_awsing.iam_role_arn
+    "arn:aws:iam::${var.account_id}:role/${terraform.workspace}-github-awsing-role"
   ]
 
   role_requires_mfa = false

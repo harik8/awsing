@@ -25,7 +25,7 @@ module "aurora_postgres" {
   skip_final_snapshot         = true
   manage_master_user_password = false
   master_username             = "root"
-  master_password             = random_password.password[0].result
+  master_password             = random_password.password.result
 
   tags = {
     Name = "${terraform.workspace}-ar-psql"
@@ -33,8 +33,6 @@ module "aurora_postgres" {
 }
 
 resource "random_password" "password" {
-  count = local.vars.rds.psql.create ? 1 : 0
-
   length           = 16
   special          = true
   override_special = "!#$%&*()-_=+[]{}<>:?"

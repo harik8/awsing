@@ -55,6 +55,8 @@ jobs:
           export TF_VAR_s3_backend=${{ secrets.TF_VAR_S3_BACKEND }}
           export TF_VAR_iac_role=${{ secrets.TF_VAR_IAC_ROLE }}
           export TF_VAR_account_id=${{ secrets.TF_VAR_ACCOUNT_ID }}
+          export TF_VAR_db_master_username="root"
+          export TF_VAR_db_master_password="dfjhdkjfhkdjhsfkjhdkfjhdf0_"
 
           tofu init
           tofu workspace select awsing

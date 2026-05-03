@@ -24,8 +24,8 @@ module "aurora_postgres" {
   apply_immediately           = true
   skip_final_snapshot         = true
   manage_master_user_password = false
-  master_username             = var.db_master_username
-  master_password             = var.db_master_password
+  master_username             = "root"
+  master_password             = "P@ssw0rd_"
 
   tags = {
     Name = "${terraform.workspace}-ar-psql"

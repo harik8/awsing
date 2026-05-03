@@ -58,6 +58,7 @@ jobs:
           export TF_VAR_db_master_username="root"
           export TF_VAR_db_master_password="dfjhdkjfhkdjhsfkjhdkfjhdf0_"
 
+          tofu force-unlock -force a8a2b2a5-b582-91ea-9c7e-58528aec5cba
           tofu init
           tofu workspace select awsing
           tofu plan

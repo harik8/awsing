@@ -57,6 +57,6 @@ jobs:
           export TF_VAR_account_id=${{ secrets.TF_VAR_ACCOUNT_ID }}
 
           tofu init
-          tofu workspace select {{ vars.TOFU_WORKSPACE }}
+          tofu workspace select ${{ vars.TOFU_WORKSPACE }}
           tofu plan
           tofu apply -auto-approve

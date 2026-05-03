@@ -12,8 +12,8 @@ provider "aws" {
   region = var.aws_region
 
   assume_role {
-    role_arn     = "arn:aws:iam::${var.account_id}:role/${terraform.workspace}-github-awsing-role"
-    session_name = "${terraform.workspace}-github-awsing-role"
+    role_arn     = "arn:aws:iam::${var.account_id}:role/${var.iac_role}"
+    session_name = "${var.iac_role}-${terraform.workspace}"
   }
 
   default_tags {

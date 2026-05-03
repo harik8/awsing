@@ -58,6 +58,6 @@ jobs:
 
           tofu init
           tofu workspace select awsing
-          tofu force-unlock -force a8a2b2a5-b582-91ea-9c7e-58528aec5cba
+          # tofu force-unlock -force a8a2b2a5-b582-91ea-9c7e-58528aec5cba
           tofu plan
           tofu apply -auto-approve

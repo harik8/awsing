@@ -60,7 +60,6 @@ jobs:
 
           tofu init
           tofu workspace select awsing
-          tofu force-unlock -force eb54c367-0c17-0c65-9ac7-29c9d79299f3 
           tofu plan
 
   PLAN:

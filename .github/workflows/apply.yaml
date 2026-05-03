@@ -56,8 +56,18 @@ jobs:
           export TF_VAR_iac_role=${{ secrets.TF_VAR_IAC_ROLE }}
           export TF_VAR_account_id=${{ secrets.TF_VAR_ACCOUNT_ID }}
 
+          #=========================================================
+          #                         TOFU INIT
+          #=========================================================
           tofu init
           tofu workspace select awsing
-          # tofu force-unlock -force a8a2b2a5-b582-91ea-9c7e-58528aec5cba
+
+          #=========================================================
+          #                         TOFU PLAN
+          #=========================================================
           tofu plan
+
+          #=========================================================
+          #                         TOFU APPLY
+          #=========================================================
           tofu apply -auto-approve

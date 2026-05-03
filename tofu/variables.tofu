@@ -13,14 +13,3 @@ variable "s3_backend" {
 variable "aws_region" {
   description = "The AWS region"
 }
-
-variable "db_master_username" {
-  description = "The master username for the RDS database"
-  default     = "root"
-  sensitive   = true
-}
-
-variable "db_master_password" {
-  description = "The master password for the RDS database"
-  sensitive   = true
-}

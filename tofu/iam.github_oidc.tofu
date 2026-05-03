@@ -65,3 +65,22 @@ module "iam_assumable_role_github_portfolio_website" {
     module.iam_github_portfolio_website_s3_policy.arn
   ]
 }
+
+module "iam_assumable_role_github_awsing" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role"
+  version = local.vars.iam.version
+
+  role_name   = "${terraform.workspace}-github-awsing-role"
+  create_role = true
+
+  trusted_role_arns = [
+    module.iam_github_oidc_role.arn,
+    "arn:aws:iam::${var.account_id}:role/${terraform.workspace}-github-awsing-role"
+  ]
+
+  role_requires_mfa = false
+
+  custom_role_policy_arns = [
+    "arn:aws:iam::aws:policy/AdministratorAccess"
+  ]
+}

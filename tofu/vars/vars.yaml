@@ -24,7 +24,7 @@ eks:
 iam:
   version: v5.60.0
   github_oidc:
-    repos: ["harik8/sandbox:*","harik8/hariprasad.dev:*"]
+    repos: ["harik8/sandbox:*","harik8/hariprasad.dev:*","harik8/awsing:*"]
 rds:
   psql:
     create: false

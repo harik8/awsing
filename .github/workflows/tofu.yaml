@@ -75,7 +75,7 @@ jobs:
 
             ${{ github.event.inputs.analysis_type == 'security-review' && 'Task: Review the latest commit for potential security vulnerabilities. Check for exposed secrets, insecure coding patterns, dependency vulnerabilities, or any other security concerns. Provide specific recommendations if issues are found.' || '' }}
         claude_args: |
-          --model anthropic.claude-sonnet-4-20250514-v1:0
+          --model eu.anthropic.claude-sonnet-4-20250514-v1:0
           --max-turns 30
 
     - name: Debug Claude output

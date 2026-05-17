@@ -61,6 +61,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         use_bedrock: "true"      
         claude_args: '--model us.anthropic.claude-sonnet-4-6 --max-turns 10'
+        direct_prompt: "Review this PR"
 
     - name: AWS - Set AWS Credentials
       uses: aws-actions/configure-aws-credentials@v5.1.1

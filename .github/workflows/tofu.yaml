@@ -17,7 +17,10 @@ on:
 
 permissions:
   id-token: write # This is required for requesting the JWT
-  contents: read  # This is required for actions/checkout
+  # contents: read  # This is required for actions/checkout
+  contents: write
+  pull-requests: write
+  issues: write
         
 jobs:
   TOFU-APPLY:
@@ -26,22 +29,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v6
-
-    - name: AWS - Set AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v5.1.1
-      with:
-        aws-region: ${{ vars.AWS_REGION }}
-        role-to-assume: ${{ secrets.AWS_IAM_GITHUB_OIDC_ROLE_ARN }}
-        role-session-name: gh_set_aws_credentials
-
-    - name: AWS - Assume Role
-      id: aws_assume_role
-      uses: aws-actions/configure-aws-credentials@v5.1.1
-      with:
-        aws-region: ${{ vars.AWS_REGION }}
-        role-to-assume: ${{ secrets.AWS_IAM_ASSUME_ROLE_ARN }}
-        role-session-name: github_action
-        role-chaining: true
 
     - name: Setup opentofu  
       uses: opentofu/setup-opentofu@v2
@@ -53,6 +40,63 @@ jobs:
       working-directory: tofu
       run: tofu fmt -check
       continue-on-error: false
+
+    - name: AWS Bedrock Claude Github OIDC
+      uses: aws-actions/configure-aws-credentials@v5.1.1
+      with:
+        aws-region: eu-west-1
+        role-to-assume: ${{ secrets.AWS_IAM_GITHUB_OIDC_ROLE_ARN }}
+        role-session-name: github_action_oidc_role
+
+    - name: AWS - Assume Bedrock Claude Role
+      uses: aws-actions/configure-aws-credentials@v5.1.1
+      with:
+        role-to-assume: ${{ secrets.AWS_IAM_GITHUB_BEDROCK_CLAUDE_ROLE_ARN }}
+        aws-region: eu-west-1
+        role-session-name: github_action_bedrock_claude
+        role-chaining: true
+
+    - run: |
+        aws sts get-caller-identity
+        aws bedrock list-foundation-models --by-provider anthropic --region eu-west-1
+
+    - uses: anthropics/claude-code-action@v1
+      with:
+        use_bedrock: "true"
+        mode: review
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        prompt: |
+            REPO: ${{ github.repository }}
+            BRANCH: ${{ github.ref_name }}
+
+            Analyze the latest commit in this repository.
+
+            ${{ github.event.inputs.analysis_type == 'summarize-commit' && 'Task: Provide a clear, concise summary of what changed in the latest commit. Include the commit message, files changed, and the purpose of the changes.' || '' }}
+
+            ${{ github.event.inputs.analysis_type == 'security-review' && 'Task: Review the latest commit for potential security vulnerabilities. Check for exposed secrets, insecure coding patterns, dependency vulnerabilities, or any other security concerns. Provide specific recommendations if issues are found.' || '' }}
+        claude_args: |
+          --model eu.anthropic.claude-sonnet-4-20250514-v1:0
+          --max-turns 30
+
+    - name: Debug Claude output
+      if: always()
+      run: cat /home/runner/work/_temp/claude-execution-output.json
+
+    - name: AWS - Set AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v5.1.1
+      with:
+        aws-region: ${{ vars.AWS_REGION }}
+        role-to-assume: ${{ secrets.AWS_IAM_GITHUB_OIDC_ROLE_ARN }}
+        role-session-name: github_action_oidc_role
+
+    - name: AWS - Assume Awsing Role
+      id: aws_assume_role
+      uses: aws-actions/configure-aws-credentials@v5.1.1
+      with:
+        aws-region: ${{ vars.AWS_REGION }}
+        role-to-assume: ${{ secrets.AWS_IAM_ASSUME_ROLE_ARN }}
+        role-session-name: github_action_awsing
+        role-chaining: true
 
     - name: OpenTofu apply
       working-directory: tofu

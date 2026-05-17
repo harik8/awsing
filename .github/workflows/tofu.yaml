@@ -58,10 +58,26 @@ jobs:
 
     - uses: anthropics/claude-code-action@v1
       with:
+        use_bedrock: "true"
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        use_bedrock: "true"      
-        claude_args: '--model eu.anthropic.claude-sonnet-4-5-20250929-v1:0 --max-turns 30'
-        prompt: "Review this PR"
+        claude_args: |
+          --model eu.anthropic.claude-sonnet-4-5-20250514-v1:0
+          --max-turns 30
+        settings: |
+          {
+            "permissions": {
+              "allow": ["Bash(git:*)", "Read", "Glob", "Grep"],
+              "deny": []
+            }
+          }
+        prompt: |
+          Review the changes in this PR using git diff HEAD~1.
+          Check for bugs, security issues, code style, and missing tests.
+          Post a single consolidated review comment when done.
+
+    - name: Debug Claude output
+        if: always()
+        run: cat /home/runner/work/_temp/claude-execution-output.json
 
     - name: AWS - Set AWS Credentials
       uses: aws-actions/configure-aws-credentials@v5.1.1

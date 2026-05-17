@@ -100,7 +100,7 @@ module "iam_github_portfolio_bedrock_claude_policy" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-policy"
   version = local.vars.iam.version
 
-  name        = "${terraform.workspace}-github-portfolio-bedrock-claude-policy"
+  name        = "${terraform.workspace}-github-bedrock-claude-policy"
   path        = "/"
   description = "IAM policy for GitHub OIDC role to access ${terraform.workspace}-bedrock-claude policy"
 

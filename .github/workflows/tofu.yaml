@@ -52,11 +52,11 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: ${{ secrets.AWS_IAM_GITHUB_BEDROCK_CLAUDE_ROLE_ARN }}
-        aws-region: ${{ vars.AWS_REGION }}
+        aws-region: eu-west-1
         role-session-name: github_action_bedrock_claude
         role-chaining: true
 
-    - run: aws sts get-caller-identity && aws configure get region
+    # - run: aws sts get-caller-identity && aws configure get region
 
     - uses: anthropics/claude-code-action@v1
       with:

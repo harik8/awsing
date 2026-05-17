@@ -60,7 +60,7 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         use_bedrock: "true"      
-        claude_args: '--model eu.anthropic.claude-sonnet-4-5-20250929-v1:0 --max-turns 10'
+        claude_args: '--model eu.anthropic.claude-sonnet-4-5-20250929-v1:0 --max-turns 30'
         prompt: "Review this PR"
 
     - name: AWS - Set AWS Credentials

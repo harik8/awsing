@@ -118,7 +118,6 @@ module "iam_github_portfolio_bedrock_claude_policy" {
         "bedrock:GetFoundationModel",
         "bedrock:ListInferenceProfiles",
         "bedrock:GetInferenceProfile",
-        # Enable AWS Marketplace subscription for a model
         "aws-marketplace:ViewSubscriptions",
         "aws-marketplace:Subscribe",
         "aws-marketplace:Unsubscribe"

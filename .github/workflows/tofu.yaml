@@ -61,7 +61,7 @@ jobs:
         use_bedrock: "true"
         github_token: ${{ secrets.GITHUB_TOKEN }}
         claude_args: |
-          --model eu.anthropic.claude-sonnet-4-5-20250514-v1:0
+          --model eu.anthropic.claude-sonnet-4-20250514-v1:0
           --max-turns 30
         settings: |
           {

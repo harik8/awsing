@@ -29,6 +29,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
 
     - name: Setup opentofu  
       uses: opentofu/setup-opentofu@v2
@@ -63,6 +65,7 @@ jobs:
     - uses: anthropics/claude-code-action@v1
       with:
         use_bedrock: "true"
+        mode: review
         github_token: ${{ secrets.GITHUB_TOKEN }}
         claude_args: |
           --model anthropic.claude-sonnet-4-20250514-v1:0

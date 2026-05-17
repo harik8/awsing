@@ -29,8 +29,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
 
     - name: Setup opentofu  
       uses: opentofu/setup-opentofu@v2
@@ -65,32 +63,20 @@ jobs:
     - uses: anthropics/claude-code-action@v1
       with:
         use_bedrock: "true"
+        mode: review
         github_token: ${{ secrets.GITHUB_TOKEN }}
+        prompt: |
+            REPO: ${{ github.repository }}
+            BRANCH: ${{ github.ref_name }}
 
-        # Run automatically on PRs
-        trigger_phrase: ""
+            Analyze the latest commit in this repository.
 
+            ${{ github.event.inputs.analysis_type == 'summarize-commit' && 'Task: Provide a clear, concise summary of what changed in the latest commit. Include the commit message, files changed, and the purpose of the changes.' || '' }}
+
+            ${{ github.event.inputs.analysis_type == 'security-review' && 'Task: Review the latest commit for potential security vulnerabilities. Check for exposed secrets, insecure coding patterns, dependency vulnerabilities, or any other security concerns. Provide specific recommendations if issues are found.' || '' }}
         claude_args: |
           --model anthropic.claude-sonnet-4-20250514-v1:0
           --max-turns 30
-
-        settings: |
-         {
-          "permissions": {
-            "allow": ["Bash(git:*)", "Read", "Glob", "Grep"],
-            "deny": []
-          }
-        }
-
-        prompt: |
-          Review the changes in this PR using git diff origin/${{ github.base_ref }}...HEAD.
-          Check for:
-          - bugs
-          - security issues
-          - code style
-          - missing tests
-
-          Post a single consolidated review comment.
 
     - name: Debug Claude output
       if: always()

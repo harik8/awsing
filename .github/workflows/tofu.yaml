@@ -76,8 +76,8 @@ jobs:
           Post a single consolidated review comment when done.
 
     - name: Debug Claude output
-        if: always()
-        run: cat /home/runner/work/_temp/claude-execution-output.json
+      if: always()
+      run: cat /home/runner/work/_temp/claude-execution-output.json
 
     - name: AWS - Set AWS Credentials
       uses: aws-actions/configure-aws-credentials@v5.1.1

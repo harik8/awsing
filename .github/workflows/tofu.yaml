@@ -56,6 +56,8 @@ jobs:
         role-session-name: github_action_bedrock_claude
         role-chaining: true
 
+    - run: aws sts get-caller-identity && aws configure get region
+
     - uses: anthropics/claude-code-action@v1
       with:
         use_bedrock: "true"

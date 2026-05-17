@@ -61,7 +61,7 @@ jobs:
         use_bedrock: "true"
         github_token: ${{ secrets.GITHUB_TOKEN }}
         claude_args: |
-          --model arn:aws:bedrock:eu-west-3::foundation-model/anthropic.claude-sonnet-4-20250514-v1:0
+          --model arn:aws:bedrock:${{ vars.AWS_REGION }}::foundation-model/anthropic.claude-sonnet-4-20250514-v1:0
           --max-turns 30
         settings: |
           {

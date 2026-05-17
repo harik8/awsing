@@ -41,27 +41,27 @@ jobs:
       run: tofu fmt -check
       continue-on-error: false
 
-    - name: AWS Bedrock Claude Github OIDC 
-      uses: aws-actions/configure-aws-credentials@v5.1.1
-      with:
-        aws-region: ${{ vars.AWS_REGION }}
-        role-to-assume: ${{ secrets.AWS_IAM_GITHUB_OIDC_ROLE_ARN }}
-        role-session-name: github_action_oidc_role
+    # - name: AWS Bedrock Claude Github OIDC 
+    #   uses: aws-actions/configure-aws-credentials@v5.1.1
+    #   with:
+    #     aws-region: ${{ vars.AWS_REGION }}
+    #     role-to-assume: ${{ secrets.AWS_IAM_GITHUB_OIDC_ROLE_ARN }}
+    #     role-session-name: github_action_oidc_role
 
-    - name: AWS - Assume Bedrock Claude Role
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        role-to-assume: ${{ secrets.AWS_IAM_GITHUB_BEDROCK_CLAUDE_ROLE_ARN }}
-        aws-region: ${{ vars.AWS_REGION }}
-        role-session-name: github_action_bedrock_claude
-        role-chaining: true
+    # - name: AWS - Assume Bedrock Claude Role
+    #   uses: aws-actions/configure-aws-credentials@v4
+    #   with:
+    #     role-to-assume: ${{ secrets.AWS_IAM_GITHUB_BEDROCK_CLAUDE_ROLE_ARN }}
+    #     aws-region: ${{ vars.AWS_REGION }}
+    #     role-session-name: github_action_bedrock_claude
+    #     role-chaining: true
 
-    - uses: anthropics/claude-code-action@v1
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        use_bedrock: "true"      
-        claude_args: '--model eu.anthropic.claude-sonnet-4-5-20250929-v1:0 --max-turns 10'
-        prompt: "Review this PR"
+    # - uses: anthropics/claude-code-action@v1
+    #   with:
+    #     github_token: ${{ secrets.GITHUB_TOKEN }}
+    #     use_bedrock: "true"      
+    #     claude_args: '--model eu.anthropic.claude-sonnet-4-5-20250929-v1:0 --max-turns 10'
+    #     prompt: "Review this PR"
 
     - name: AWS - Set AWS Credentials
       uses: aws-actions/configure-aws-credentials@v5.1.1

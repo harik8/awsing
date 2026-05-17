@@ -34,7 +34,7 @@ jobs:
         role-to-assume: ${{ secrets.AWS_IAM_GITHUB_OIDC_ROLE_ARN }}
         role-session-name: gh_set_aws_credentials
 
-    - name: AWS - Assume Role
+    - name: AWS - Assume Awsing Role
       id: aws_assume_role
       uses: aws-actions/configure-aws-credentials@v5.1.1
       with:
@@ -53,6 +53,20 @@ jobs:
       working-directory: tofu
       run: tofu fmt -check
       continue-on-error: false
+
+    - name: AWS - Assume Bedrock Claude Role
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_IAM_GITHUB_BEDROCK_CLAUDE_ROLE_ARN }}
+        aws-region: ${{ vars.AWS_REGION }}
+        role-session-name: github_action_bedrock_claude
+        role-chaining: true
+
+    - uses: anthropics/claude-code-action@v1
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        use_bedrock: "true"      
+        claude_args: '--model us.anthropic.claude-sonnet-4-6 --max-turns 10'
 
     - name: OpenTofu apply
       working-directory: tofu

@@ -65,11 +65,32 @@ jobs:
     - uses: anthropics/claude-code-action@v1
       with:
         use_bedrock: "true"
-        mode: review
         github_token: ${{ secrets.GITHUB_TOKEN }}
+
+        # Run automatically on PRs
+        trigger_phrase: ""
+
         claude_args: |
           --model anthropic.claude-sonnet-4-20250514-v1:0
           --max-turns 30
+
+        settings: |
+         {
+          "permissions": {
+            "allow": ["Bash(git:*)", "Read", "Glob", "Grep"],
+            "deny": []
+          }
+        }
+
+      prompt: |
+        Review the changes in this PR using git diff origin/${{ github.base_ref }}...HEAD.
+        Check for:
+        - bugs
+        - security issues
+        - code style
+        - missing tests
+
+        Post a single consolidated review comment.
 
     - name: Debug Claude output
       if: always()

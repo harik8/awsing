@@ -41,41 +41,32 @@ jobs:
       run: tofu fmt -check
       continue-on-error: false
 
-    - name: AWS Bedrock Claude Github OIDC 
+    - name: AWS Bedrock Claude Github OIDC
       uses: aws-actions/configure-aws-credentials@v5.1.1
       with:
-        aws-region: ${{ vars.AWS_REGION }}
+        aws-region: eu-west-1
         role-to-assume: ${{ secrets.AWS_IAM_GITHUB_OIDC_ROLE_ARN }}
         role-session-name: github_action_oidc_role
 
     - name: AWS - Assume Bedrock Claude Role
-      uses: aws-actions/configure-aws-credentials@v4
+      uses: aws-actions/configure-aws-credentials@v5.1.1
       with:
         role-to-assume: ${{ secrets.AWS_IAM_GITHUB_BEDROCK_CLAUDE_ROLE_ARN }}
         aws-region: eu-west-1
         role-session-name: github_action_bedrock_claude
         role-chaining: true
 
-    # - run: aws sts get-caller-identity && aws configure get region
+    - run: |
+      aws sts get-caller-identity
+      aws bedrock list-foundation-models --by-provider anthropic --region eu-west-1
 
     - uses: anthropics/claude-code-action@v1
       with:
         use_bedrock: "true"
         github_token: ${{ secrets.GITHUB_TOKEN }}
         claude_args: |
-          --model eu.anthropic.claude-sonnet-4-20250514-v1:0
+          --model anthropic.claude-sonnet-4-20250514-v1:0
           --max-turns 30
-        settings: |
-          {
-            "permissions": {
-              "allow": ["Bash(git:*)", "Read", "Glob", "Grep"],
-              "deny": []
-            }
-          }
-        prompt: |
-          Review the changes in this PR using git diff HEAD~1.
-          Check for bugs, security issues, code style, and missing tests.
-          Post a single consolidated review comment when done.
 
     - name: Debug Claude output
       if: always()

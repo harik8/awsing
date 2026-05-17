@@ -1,3 +1,8 @@
+# ===== Description =====
+# IAM self-assumption and scoped-down policy principals have been followed in Github OIDC implementation
+# More details: https://dev.to/aws-builders/understanding-self-assumption-and-scoped-down-policy-in-aws-iam-2io
+# ======
+
 module "iam_github_oidc_provider" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-github-oidc-provider"
   version = local.vars.iam.version
@@ -12,6 +17,8 @@ module "iam_github_oidc_role" {
   # This should be updated to suit your organization, repository, references/branches, etc.
   subjects = local.vars.iam.github_oidc.repos
 }
+
+# ===== hariprasad.dev Cloudfront deployment =====
 
 module "iam_github_portfolio_website_s3_policy" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-policy"
@@ -66,6 +73,8 @@ module "iam_assumable_role_github_portfolio_website" {
   ]
 }
 
+# ===== awsing OpenTofu deployment =====
+
 module "iam_assumable_role_github_awsing" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role"
   version = local.vars.iam.version
@@ -82,5 +91,55 @@ module "iam_assumable_role_github_awsing" {
 
   custom_role_policy_arns = [
     "arn:aws:iam::aws:policy/AdministratorAccess"
+  ]
+}
+
+# ===== PR review using Bedrock claude =====
+
+module "iam_github_portfolio_bedrock_claude_policy" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-policy"
+  version = local.vars.iam.version
+
+  name        = "${terraform.workspace}-github-portfolio-bedrock-claude-policy"
+  path        = "/"
+  description = "IAM policy for GitHub OIDC role to access ${terraform.workspace}-bedrock-claude policy"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ClaudeBedrockInference",
+      "Effect": "Allow",
+      "Action": [
+        "bedrock:InvokeModel",
+        "bedrock:InvokeModelWithResponseStream",
+        "bedrock:ListFoundationModels",
+        "bedrock:GetFoundationModel",
+        "bedrock:ListInferenceProfiles",
+        "bedrock:GetInferenceProfile"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+module "iam_assumable_role_github_bedrock_claude" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role"
+  version = local.vars.iam.version
+
+  role_name   = "${terraform.workspace}-github-bedrock-claude-role"
+  create_role = true
+
+  trusted_role_arns = [
+    module.iam_github_oidc_role.arn
+  ]
+
+  role_requires_mfa = false
+
+  custom_role_policy_arns = [
+    module.iam_github_portfolio_bedrock_claude_policy.arn
   ]
 }

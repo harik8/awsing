@@ -17,7 +17,10 @@ on:
 
 permissions:
   id-token: write # This is required for requesting the JWT
-  contents: read  # This is required for actions/checkout
+  # contents: read  # This is required for actions/checkout
+  contents: write
+  pull-requests: write
+  issues: write
         
 jobs:
   TOFU-APPLY:
@@ -27,42 +30,78 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v6
 
-    - name: AWS - Set AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v5.1.1
-      with:
-        aws-region: ${{ vars.AWS_REGION }}
-        role-to-assume: ${{ secrets.AWS_IAM_GITHUB_OIDC_ROLE_ARN }}
-        role-session-name: gh_set_aws_credentials
+    # - name: Setup opentofu  
+    #   uses: opentofu/setup-opentofu@v2
+    #   with:
+    #     tofu_version: 1.11.2
+    #     cache: true
 
-    - name: AWS - Assume Role
-      id: aws_assume_role
+    # - name: OpenTofu fmt
+    #   working-directory: tofu
+    #   run: tofu fmt -check
+    #   continue-on-error: false
+
+    - name: AWS Bedrock Claude Github OIDC
       uses: aws-actions/configure-aws-credentials@v5.1.1
       with:
-        aws-region: ${{ vars.AWS_REGION }}
-        role-to-assume: ${{ secrets.AWS_IAM_ASSUME_ROLE_ARN }}
-        role-session-name: github_action
+        aws-region: eu-west-1
+        role-to-assume: ${{ secrets.AWS_IAM_GITHUB_OIDC_ROLE_ARN }}
+        role-session-name: github_action_oidc_role
+
+    - name: AWS - Assume Bedrock Claude Role
+      uses: aws-actions/configure-aws-credentials@v5.1.1
+      with:
+        role-to-assume: ${{ secrets.AWS_IAM_GITHUB_BEDROCK_CLAUDE_ROLE_ARN }}
+        aws-region: eu-west-1
+        role-session-name: github_action_bedrock_claude
         role-chaining: true
 
-    - name: Setup opentofu  
-      uses: opentofu/setup-opentofu@v2
+    # - run: |
+    #     aws sts get-caller-identity
+    #     aws bedrock list-foundation-models --by-provider anthropic --region eu-west-1
+
+    - uses: anthropics/claude-code-action@v1
       with:
-        tofu_version: 1.11.2
-        cache: true
+        use_bedrock: "true"
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        prompt: |
+            REPO: ${{ github.repository }}
+            BRANCH: ${{ github.ref_name }}
 
-    - name: OpenTofu fmt
-      working-directory: tofu
-      run: tofu fmt -check
-      continue-on-error: false
+            Analyze the latest commit in this repository.
+        claude_args: |
+          --model eu.anthropic.claude-haiku-4-5-20251001-v1:0
+          --max-turns 30
 
-    - name: OpenTofu apply
-      working-directory: tofu
-      run: |
-          export TF_VAR_aws_region=${{ vars.AWS_REGION }}
-          export TF_VAR_s3_backend=${{ secrets.TF_VAR_S3_BACKEND }}
-          export TF_VAR_iac_role=${{ secrets.TF_VAR_IAC_ROLE }}
-          export TF_VAR_account_id=${{ secrets.TF_VAR_ACCOUNT_ID }}
+    - name: Debug Claude output
+      if: always()
+      run: cat /home/runner/work/_temp/claude-execution-output.json
 
-          tofu init
-          tofu workspace select ${{ vars.TOFU_WORKSPACE }}
-          tofu plan
-          tofu apply -auto-approve
+    # - name: AWS - Set AWS Credentials
+    #   uses: aws-actions/configure-aws-credentials@v5.1.1
+    #   with:
+    #     aws-region: ${{ vars.AWS_REGION }}
+    #     role-to-assume: ${{ secrets.AWS_IAM_GITHUB_OIDC_ROLE_ARN }}
+    #     role-session-name: github_action_oidc_role
+
+    # - name: AWS - Assume Awsing Role
+    #   id: aws_assume_role
+    #   uses: aws-actions/configure-aws-credentials@v5.1.1
+    #   with:
+    #     aws-region: ${{ vars.AWS_REGION }}
+    #     role-to-assume: ${{ secrets.AWS_IAM_ASSUME_ROLE_ARN }}
+    #     role-session-name: github_action_awsing
+    #     role-chaining: true
+
+    # - name: OpenTofu apply
+    #   working-directory: tofu
+    #   run: |
+    #       export TF_VAR_aws_region=${{ vars.AWS_REGION }}
+    #       export TF_VAR_s3_backend=${{ secrets.TF_VAR_S3_BACKEND }}
+    #       export TF_VAR_iac_role=${{ secrets.TF_VAR_IAC_ROLE }}
+    #       export TF_VAR_account_id=${{ secrets.TF_VAR_ACCOUNT_ID }}
+
+    #       tofu init
+    #       tofu workspace select ${{ vars.TOFU_WORKSPACE }}
+    #       tofu plan
+    #       tofu apply -auto-approve

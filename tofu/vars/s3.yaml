@@ -1,5 +1,5 @@
 ---
-- name: portfolio-website
+- name: hp-dev
   policy: |
     {
       "Version": "2012-10-17",
@@ -12,10 +12,10 @@
                   "Service": "cloudfront.amazonaws.com"
               },
               "Action": "s3:GetObject",
-              "Resource": "arn:aws:s3:::${workspace}-portfolio-website/*",
+              "Resource": "arn:aws:s3:::${workspace}-hp-dev/*",
               "Condition": {
                   "StringEquals": {
-                      "AWS:SourceArn": "arn:aws:cloudfront::${account_id}:distribution/E24WTSJXB8PPI1"
+                      "AWS:SourceArn": "arn:aws:cloudfront::${account_id}:distribution/E2B46Z10ZSO418"
                   }
               }
           }

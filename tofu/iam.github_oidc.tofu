@@ -13,13 +13,13 @@ module "iam_github_oidc_role" {
   subjects = local.vars.iam.github_oidc.repos
 }
 
-module "iam_github_portfolio_website_s3_policy" {
+module "iam_github_hp_dev_s3_policy" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-policy"
   version = local.vars.iam.version
 
-  name        = "${terraform.workspace}-github-portfolio-website-s3-policy"
+  name        = "${terraform.workspace}-github-hp-dev-s3-policy"
   path        = "/"
-  description = "IAM policy for GitHub OIDC role to access ${terraform.workspace}-portfolio-website S3 bucket"
+  description = "IAM policy for GitHub OIDC role to access ${terraform.workspace}-hp-dev S3 bucket"
 
   policy = <<EOF
 {
@@ -31,7 +31,7 @@ module "iam_github_portfolio_website_s3_policy" {
       ],
       "Effect": "Allow",
       "Resource": [
-          "arn:aws:s3:::${terraform.workspace}-portfolio-website/*"
+          "arn:aws:s3:::${terraform.workspace}-hp-dev/*"
         ]
     },
     {
@@ -40,7 +40,7 @@ module "iam_github_portfolio_website_s3_policy" {
       ],
       "Effect": "Allow",
       "Resource": [
-          "arn:aws:s3:::${terraform.workspace}-portfolio-website"
+          "arn:aws:s3:::${terraform.workspace}-hp-dev"
         ]
     }
   ]
@@ -48,11 +48,11 @@ module "iam_github_portfolio_website_s3_policy" {
 EOF
 }
 
-module "iam_assumable_role_github_portfolio_website" {
+module "iam_assumable_role_github_hp_dev" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role"
   version = local.vars.iam.version
 
-  role_name   = "${terraform.workspace}-github-portfolio-website-role"
+  role_name   = "${terraform.workspace}-github-hp-dev-role"
   create_role = true
 
   trusted_role_arns = [
@@ -62,7 +62,7 @@ module "iam_assumable_role_github_portfolio_website" {
   role_requires_mfa = false
 
   custom_role_policy_arns = [
-    module.iam_github_portfolio_website_s3_policy.arn
+    module.iam_github_hp_dev_s3_policy.arn
   ]
 }
 

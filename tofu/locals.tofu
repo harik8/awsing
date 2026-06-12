@@ -4,6 +4,7 @@ locals {
   # Template variables to pass to YAML files
   template_vars = {
     account_id = var.account_id
+    aws_region = var.aws_region
     workspace  = terraform.workspace
   }
 

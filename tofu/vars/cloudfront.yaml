@@ -1,19 +1,19 @@
 ---
-- name: portfolio-website
+- name: hp-dev
   aliases: 
     - hariprasad.dev
     - www.hariprasad.dev 
   create_oac: true
   create_oai: false
   logging_config:
-    bucket: ${workspace}-portfolio-website.s3.amazonaws.com
+    bucket: ${workspace}-hp-dev.s3.${aws_region}.amazonaws.com
   origin:
-    s3_portfolio_website:
-      domain_name: "${workspace}-portfolio-website.s3.amazonaws.com"
+    s3_hp_dev:
+      domain_name:  "${workspace}-hp-dev.s3.${aws_region}.amazonaws.com"
       origin_access_control: "s3"
   default_root_object: "static/index.html"
   default_cache_behavior:
-    target_origin_id: "s3_portfolio_website"
+    target_origin_id: "s3_hp_dev"
     viewer_protocol_policy: "redirect-to-https"
     allowed_methods: ["GET", "HEAD", "OPTIONS"]
     cached_methods: ["GET", "HEAD"]
@@ -21,7 +21,7 @@
     query_string: true
   ordered_cache_behavior:
     - path_pattern: "/static/*"
-      target_origin_id: "s3_portfolio_website"
+      target_origin_id: "s3_hp_dev"
       viewer_protocol_policy: "redirect-to-https"
       allowed_methods: ["GET", "HEAD", "OPTIONS"]
       cached_methods: ["GET", "HEAD"]

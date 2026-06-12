@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
     bucket       = var.s3_backend
-    key          = "tofu.state"
+    key          = "opentofu.state"
     region       = var.aws_region
     encrypt      = true
     use_lockfile = true
@@ -18,8 +18,8 @@ provider "aws" {
 
   default_tags {
     tags = {
-      Stage    = terraform.workspace
-      OpenTofu = true
+      Stage = terraform.workspace
+      IaC   = true
     }
   }
 }

@@ -75,7 +75,8 @@ module "iam_assumable_role_github_awsing" {
 
   trusted_role_arns = [
     module.iam_github_oidc_role.arn,
-    "arn:aws:iam::${var.account_id}:role/${terraform.workspace}-github-awsing-role"
+    "arn:aws:iam::${var.account_id}:role/${terraform.workspace}-github-awsing-role",
+    "arn:aws:sts::${var.account_id}:assumed-role/AWSReservedSSO_AdministratorAccess_0ada0c673e6da443/hari.karthigasu"
   ]
 
   role_requires_mfa = false

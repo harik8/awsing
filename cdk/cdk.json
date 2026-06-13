@@ -15,7 +15,7 @@
     ]
   },
   "context": {
-    "@aws-cdk/core:bootstrapQualifier": "h-cdk",
+    "@aws-cdk/core:bootstrapQualifier": "awsing-cdk",
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,
     "@aws-cdk/core:target-partitions": [

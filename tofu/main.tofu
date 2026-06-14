@@ -25,8 +25,8 @@ provider "aws" {
 }
 
 provider "kubernetes" {
-  host                   = coalesce(module.eks.cluster_endpoint, local.vars.eks.create ? null : "https://localhost")
-  cluster_ca_certificate = base64decode(coalesce(module.eks.cluster_certificate_authority_data, local.vars.eks.create ? null : "bnVsbA=="))
+  host                   = local.vars.eks.create ? module.eks.cluster_endpoint : "https://localhost"
+  cluster_ca_certificate = local.vars.eks.create ? base64decode(module.eks.cluster_certificate_authority_data) : null
 
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"

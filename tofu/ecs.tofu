@@ -1,6 +1,6 @@
 module "ecs" {
   source  = "terraform-aws-modules/ecs/aws"
-  version = local.vars.ecs.version
+  version = "v7.5.0"
 
   create                                 = local.vars.ecs.create
   cluster_name                           = terraform.workspace
@@ -8,45 +8,43 @@ module "ecs" {
   create_task_exec_iam_role              = true
   task_exec_iam_role_name                = "${terraform.workspace}-ecs-role"
 
-  default_capacity_provider_use_fargate = true
+  cluster_capacity_providers = ["FARGATE", "FARGATE_SPOT"]
 
-  fargate_capacity_providers = {
+  default_capacity_provider_strategy = {
     FARGATE = {
-      default_capacity_provider_strategy = {
-        weight = 50
-      }
+      weight = 50
     }
     FARGATE_SPOT = {
-      default_capacity_provider_strategy = {
-        weight = 50
-      }
+      weight = 50
     }
   }
 }
 
 module "iam_role_ecs_task_exec_role" {
-  source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role"
-  version = local.vars.iam.version
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role"
+  version = "v6.6.1"
 
-  create_role = true
-  role_name   = "${terraform.workspace}-ecs-task-exec-role"
+  name            = "${terraform.workspace}-ecs-task-exec-role"
+  use_name_prefix = false
 
-  trusted_role_services = [
-    "ecs.amazonaws.com",
-    "ecs-tasks.amazonaws.com"
-  ]
+  trust_policy_permissions = {
+    AllowECSAssumeRole = {
+      actions = ["sts:AssumeRole"]
+      principals = [{
+        type        = "Service"
+        identifiers = ["ecs.amazonaws.com", "ecs-tasks.amazonaws.com"]
+      }]
+    }
+  }
 
-  role_requires_mfa = false
-
-  custom_role_policy_arns = [
-    "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-  ]
+  policies = {
+    AmazonECSTaskExecutionRolePolicy = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  }
 }
-
 
 module "ecs_sg" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = local.vars.security_group.version
+  version = "v6.0.0"
 
   create = local.vars.ecs.create
 
@@ -54,23 +52,21 @@ module "ecs_sg" {
   description = "Security group of ECS ${terraform.workspace}"
   vpc_id      = module.vpc.vpc_id
 
-  ingress_cidr_blocks = [module.vpc.vpc_cidr_block]
-  ingress_with_cidr_blocks = [
-    {
+  ingress_rules = {
+    vpc_ingress = {
       from_port   = 0
       to_port     = 0
-      protocol    = "tcp"
+      ip_protocol = "tcp"
+      cidr_ipv4   = module.vpc.vpc_cidr_block
       description = "Allow Solr traffic"
-      cidr_blocks = module.vpc.vpc_cidr_block
     }
-  ]
-  egress_with_cidr_blocks = [
-    {
-      from_port   = 0
-      to_port     = 0
-      protocol    = "-1"
+  }
+
+  egress_rules = {
+    all_outbound = {
+      ip_protocol = "-1"
+      cidr_ipv4   = "0.0.0.0/0"
       description = "Allow all outbound traffic"
-      cidr_blocks = "0.0.0.0/0"
     }
-  ]
+  }
 }

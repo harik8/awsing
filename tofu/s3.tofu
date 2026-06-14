@@ -1,6 +1,6 @@
 module "s3" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = local.vars.s3.version
+  version = "v5.14.0"
 
   count = length(local.s3_vars)
 
@@ -30,7 +30,7 @@ module "s3" {
 
 module "s3_kms" {
   source  = "terraform-aws-modules/kms/aws"
-  version = "v3.1.1"
+  version = "v4.2.0"
 
   count = length([for bucket in local.s3_vars : bucket if can(bucket["sse_kms"])])
 

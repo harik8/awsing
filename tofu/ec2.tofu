@@ -1,6 +1,6 @@
 module "ec2" {
   source  = "terraform-aws-modules/ec2-instance/aws"
-  version = "v5.8.0"
+  version = "v6.4.0"
 
   count = length(local.vars.ec2)
 
@@ -13,15 +13,14 @@ module "ec2" {
   subnet_id                   = element(module.vpc.private_subnets, 0)
   create_iam_instance_profile = true
 
-
   iam_role_policies = {
     AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
   }
 
-  root_block_device = try(local.vars.ec2[count.index]["root_block_device"], [{
-    encrypted   = true
-    volume_type = "gp3"
-  }])
+  root_block_device = try(local.vars.ec2[count.index]["root_block_device"], {
+    encrypted = true
+    type      = "gp3"
+  })
 
   tags = {
     Name = "${terraform.workspace}-${local.vars.ec2[count.index]["name"]}"

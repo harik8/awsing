@@ -9,10 +9,10 @@ module "cloudfront" {
 
   origin_access_control  = try(local.cloudfront_vars[count.index]["create_oac"], false) ? { s3 = { origin_type = "s3", signing_behavior = "always", signing_protocol = "sigv4" } } : {}
   default_cache_behavior = local.cloudfront_vars[count.index]["default_cache_behavior"]
-  default_root_object          = try(local.cloudfront_vars[count.index]["default_root_object"], "index.html")
-  origin                       = local.cloudfront_vars[count.index]["origin"]
-  ordered_cache_behavior       = try(local.cloudfront_vars[count.index]["ordered_cache_behavior"], [])
-  viewer_certificate           = try(local.cloudfront_vars[count.index]["viewer_certificate"], {})
+  default_root_object    = try(local.cloudfront_vars[count.index]["default_root_object"], "index.html")
+  origin                 = local.cloudfront_vars[count.index]["origin"]
+  ordered_cache_behavior = try(local.cloudfront_vars[count.index]["ordered_cache_behavior"], [])
+  viewer_certificate     = try(local.cloudfront_vars[count.index]["viewer_certificate"], {})
 
   logging_config = try(local.cloudfront_vars[count.index]["logging_config"], null)
 }

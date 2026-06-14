@@ -10,8 +10,8 @@ module "iam_github_oidc_role" {
   name            = "${terraform.workspace}-github-oidc-role"
   use_name_prefix = false
 
-  enable_github_oidc = true
-  oidc_subjects      = local.vars.iam.github_oidc.repos
+  enable_github_oidc     = true
+  oidc_wildcard_subjects = local.vars.iam.github_oidc.repos
 }
 
 module "iam_github_hp_dev_s3_policy" {

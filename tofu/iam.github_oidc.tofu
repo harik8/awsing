@@ -96,3 +96,4 @@ module "iam_assumable_role_github_awsing" {
     AdministratorAccess = "arn:aws:iam::aws:policy/AdministratorAccess"
   }
 }
+

@@ -1,12 +1,12 @@
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = local.vars.eks.version
+  version = "v21.23.0"
 
   create = local.vars.eks.create
 
-  cluster_name                             = terraform.workspace
-  cluster_version                          = local.vars.eks.cluster_version
-  cluster_endpoint_public_access           = true
+  name                                     = terraform.workspace
+  kubernetes_version                       = local.vars.eks.cluster_version
+  endpoint_public_access                   = true
   create_kms_key                           = true
   enable_cluster_creator_admin_permissions = true
   control_plane_subnet_ids                 = module.vpc.private_subnets
@@ -30,11 +30,11 @@ module "eks" {
     }
   }
 
-  cluster_addons = {
+  addons = {
     coredns = {
-      most_recent  = true,
-      compute_type = "fargate",
+      most_recent = true
       configuration_values = jsonencode({
+        computeType = "Fargate"
         autoScaling = {
           enabled     = true
           minReplicas = 2
@@ -51,15 +51,17 @@ module "eks" {
     aws-efs-csi-driver = {
       most_recent              = true
       service_account_role_arn = "arn:aws:iam::${var.account_id}:role/${terraform.workspace}-efs-csi"
-      replicaCount             = 1
-      "tolerations" : [
-        {
-          "key" : "application",
-          "effect" : "NO_SCHEDULE",
-          "operator" : "Equal",
-          "value" : "true"
-        }
-      ]
+      configuration_values = jsonencode({
+        replicaCount = 1
+        tolerations = [
+          {
+            key      = "application"
+            effect   = "NoSchedule"
+            operator = "Equal"
+            value    = "true"
+          }
+        ]
+      })
     }
   }
 }
@@ -68,7 +70,7 @@ module "fargate_profile" {
   for_each = { for profile in local.vars.eks.fargate_profile : profile.name => profile }
 
   source  = "terraform-aws-modules/eks/aws//modules/fargate-profile"
-  version = local.vars.eks.version
+  version = "v21.23.0"
   create  = local.vars.eks.create
 
   name         = "${module.eks.cluster_name}-${each.value.name}"
@@ -145,13 +147,13 @@ resource "kubernetes_storage_class_v1" "efs" {
 
 module "eks_managed_node_group" {
   source  = "terraform-aws-modules/eks/aws//modules/eks-managed-node-group"
-  version = local.vars.eks.version
+  version = "v21.23.0"
 
   create = local.vars.eks.create
 
   name                 = terraform.workspace
   cluster_name         = terraform.workspace
-  cluster_version      = local.vars.eks.cluster_version
+  kubernetes_version   = local.vars.eks.cluster_version
   cluster_service_cidr = module.eks.cluster_service_cidr
 
   subnet_ids = module.vpc.private_subnets
@@ -193,12 +195,13 @@ module "eks_managed_node_group" {
 }
 
 module "irsa_efs_csi" {
-  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "v5.60.0"
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
+  version = "v6.6.1"
 
-  create_role = local.vars.eks.create && contains(keys(module.eks.cluster_addons), "aws-efs-csi-driver")
+  create = local.vars.eks.create && contains(keys(module.eks.cluster_addons), "aws-efs-csi-driver")
 
-  role_name             = "${terraform.workspace}-efs-csi"
+  name                  = "${terraform.workspace}-efs-csi"
+  use_name_prefix       = false
   attach_efs_csi_policy = true
 
   oidc_providers = {

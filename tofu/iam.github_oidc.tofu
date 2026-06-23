@@ -1,21 +1,22 @@
 module "iam_github_oidc_provider" {
-  source  = "terraform-aws-modules/iam/aws//modules/iam-github-oidc-provider"
-  version = local.vars.iam.version
+  source  = "terraform-aws-modules/iam/aws//modules/iam-oidc-provider"
+  version = "v6.6.1"
 }
 
 module "iam_github_oidc_role" {
-  source  = "terraform-aws-modules/iam/aws//modules/iam-github-oidc-role"
-  version = local.vars.iam.version
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role"
+  version = "v6.6.1"
 
-  name = "${terraform.workspace}-github-oidc-role"
+  name            = "${terraform.workspace}-github-oidc-role"
+  use_name_prefix = false
 
-  # This should be updated to suit your organization, repository, references/branches, etc.
-  subjects = local.vars.iam.github_oidc.repos
+  enable_github_oidc     = true
+  oidc_wildcard_subjects = local.vars.iam.github_oidc.repos
 }
 
 module "iam_github_hp_dev_s3_policy" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-policy"
-  version = local.vars.iam.version
+  version = "v6.6.1"
 
   name        = "${terraform.workspace}-github-hp-dev-s3-policy"
   path        = "/"
@@ -49,39 +50,50 @@ EOF
 }
 
 module "iam_assumable_role_github_hp_dev" {
-  source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role"
-  version = local.vars.iam.version
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role"
+  version = "v6.6.1"
 
-  role_name   = "${terraform.workspace}-github-hp-dev-role"
-  create_role = true
+  name            = "${terraform.workspace}-github-hp-dev-role"
+  use_name_prefix = false
 
-  trusted_role_arns = [
-    module.iam_github_oidc_role.arn
-  ]
+  trust_policy_permissions = {
+    AllowAssumeRole = {
+      actions = ["sts:AssumeRole"]
+      principals = [{
+        type        = "AWS"
+        identifiers = [module.iam_github_oidc_role.arn]
+      }]
+    }
+  }
 
-  role_requires_mfa = false
-
-  custom_role_policy_arns = [
-    module.iam_github_hp_dev_s3_policy.arn
-  ]
+  policies = {
+    github_hp_dev_s3 = module.iam_github_hp_dev_s3_policy.arn
+  }
 }
 
 module "iam_assumable_role_github_awsing" {
-  source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role"
-  version = local.vars.iam.version
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role"
+  version = "v6.6.1"
 
-  role_name   = "${terraform.workspace}-github-awsing-role"
-  create_role = true
+  name            = "${terraform.workspace}-github-awsing-role"
+  use_name_prefix = false
 
-  trusted_role_arns = [
-    module.iam_github_oidc_role.arn,
-    "arn:aws:iam::${var.account_id}:role/${terraform.workspace}-github-awsing-role",
-    "arn:aws:sts::${var.account_id}:assumed-role/AWSReservedSSO_AdministratorAccess_0ada0c673e6da443/hari.karthigasu"
-  ]
+  trust_policy_permissions = {
+    AllowAssumeRole = {
+      actions = ["sts:AssumeRole"]
+      principals = [{
+        type = "AWS"
+        identifiers = [
+          module.iam_github_oidc_role.arn,
+          "arn:aws:iam::${var.account_id}:role/${terraform.workspace}-github-awsing-role",
+          "arn:aws:sts::${var.account_id}:assumed-role/AWSReservedSSO_AdministratorAccess_0ada0c673e6da443/hari.karthigasu"
+        ]
+      }]
+    }
+  }
 
-  role_requires_mfa = false
-
-  custom_role_policy_arns = [
-    "arn:aws:iam::aws:policy/AdministratorAccess"
-  ]
+  policies = {
+    AdministratorAccess = "arn:aws:iam::aws:policy/AdministratorAccess"
+  }
 }
+

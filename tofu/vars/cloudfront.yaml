@@ -10,7 +10,7 @@
   origin:
     s3_hp_dev:
       domain_name:  "${workspace}-hp-dev.s3.${aws_region}.amazonaws.com"
-      origin_access_control: "s3"
+      origin_access_control_key: "s3"
   default_root_object: "static/index.html"
   default_cache_behavior:
     target_origin_id: "s3_hp_dev"

@@ -1,6 +1,6 @@
 module "aurora_clone" {
   source  = "terraform-aws-modules/lambda/aws"
-  version = "v7.21.1"
+  version = "v8.8.0"
 
   create = true
 
@@ -56,7 +56,7 @@ module "aurora_clone" {
 
 module "aurora_clone_purge" {
   source  = "terraform-aws-modules/lambda/aws"
-  version = "v7.21.1"
+  version = "v8.8.0"
 
   create = true
 
@@ -107,7 +107,7 @@ module "aurora_clone_purge" {
 
 module "aurora_clone_purge_eventbridge" {
   source  = "terraform-aws-modules/eventbridge/aws"
-  version = "v3.17.1"
+  version = "v4.3.0"
 
   create      = true
   create_bus  = false

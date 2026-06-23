@@ -1,6 +1,6 @@
 module "ec2" {
   source  = "terraform-aws-modules/ec2-instance/aws"
-  version = "v6.4.0"
+  version = local.vars.versions.ec2
 
   count = length(local.vars.ec2)
 

@@ -1,6 +1,6 @@
 module "aurora_postgres" {
   source  = "terraform-aws-modules/rds-aurora/aws"
-  version = "v10.2.0"
+  version = local.vars.versions.rds_aurora
 
   create = local.vars.rds.psql.create
 

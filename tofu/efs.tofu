@@ -1,6 +1,6 @@
 module "efs" {
   source  = "terraform-aws-modules/efs/aws"
-  version = "v2.2.0"
+  version = local.vars.versions.efs
 
   create = contains(keys(module.eks.cluster_addons), "aws-efs-csi-driver") && local.vars.efs.create
 

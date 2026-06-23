@@ -1,11 +1,11 @@
 module "iam_github_oidc_provider" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-oidc-provider"
-  version = "v6.6.1"
+  version = local.vars.versions.iam
 }
 
 module "iam_github_oidc_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role"
-  version = "v6.6.1"
+  version = local.vars.versions.iam
 
   name            = "${terraform.workspace}-github-oidc-role"
   use_name_prefix = false
@@ -16,7 +16,7 @@ module "iam_github_oidc_role" {
 
 module "iam_github_hp_dev_s3_policy" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-policy"
-  version = "v6.6.1"
+  version = local.vars.versions.iam
 
   name        = "${terraform.workspace}-github-hp-dev-s3-policy"
   path        = "/"
@@ -51,7 +51,7 @@ EOF
 
 module "iam_assumable_role_github_hp_dev" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role"
-  version = "v6.6.1"
+  version = local.vars.versions.iam
 
   name            = "${terraform.workspace}-github-hp-dev-role"
   use_name_prefix = false
@@ -73,14 +73,17 @@ module "iam_assumable_role_github_hp_dev" {
 
 module "iam_assumable_role_github_awsing" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role"
-  version = "v6.6.1"
+  version = local.vars.versions.iam
 
   name            = "${terraform.workspace}-github-awsing-role"
   use_name_prefix = false
 
   trust_policy_permissions = {
     AllowAssumeRole = {
-      actions = ["sts:AssumeRole"]
+      actions = [
+        "sts:AssumeRole",
+        "sts:TagSession"
+      ]
       principals = [{
         type = "AWS"
         identifiers = [

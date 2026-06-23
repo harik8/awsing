@@ -1,6 +1,6 @@
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "v21.23.0"
+  version = local.vars.versions.eks
 
   create = local.vars.eks.create
 
@@ -70,7 +70,7 @@ module "fargate_profile" {
   for_each = { for profile in local.vars.eks.fargate_profile : profile.name => profile }
 
   source  = "terraform-aws-modules/eks/aws//modules/fargate-profile"
-  version = "v21.23.0"
+  version = local.vars.versions.eks
   create  = local.vars.eks.create
 
   name         = "${module.eks.cluster_name}-${each.value.name}"
@@ -147,7 +147,7 @@ resource "kubernetes_storage_class_v1" "efs" {
 
 module "eks_managed_node_group" {
   source  = "terraform-aws-modules/eks/aws//modules/eks-managed-node-group"
-  version = "v21.23.0"
+  version = local.vars.versions.eks
 
   create = local.vars.eks.create
 
@@ -196,7 +196,7 @@ module "eks_managed_node_group" {
 
 module "irsa_efs_csi" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
-  version = "v6.6.1"
+  version = local.vars.versions.iam
 
   create = local.vars.eks.create && contains(keys(module.eks.cluster_addons), "aws-efs-csi-driver")
 

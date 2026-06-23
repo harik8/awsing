@@ -1,6 +1,6 @@
 module "cloudfront" {
   source  = "terraform-aws-modules/cloudfront/aws"
-  version = "v6.7.0"
+  version = local.vars.versions.cloudfront
 
   count = length(local.cloudfront_vars)
 

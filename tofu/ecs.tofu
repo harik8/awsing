@@ -1,6 +1,6 @@
 module "ecs" {
   source  = "terraform-aws-modules/ecs/aws"
-  version = "v7.5.0"
+  version = local.vars.versions.ecs
 
   create                                 = local.vars.ecs.create
   cluster_name                           = terraform.workspace
@@ -22,7 +22,7 @@ module "ecs" {
 
 module "iam_role_ecs_task_exec_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role"
-  version = "v6.6.1"
+  version = local.vars.versions.iam
 
   name            = "${terraform.workspace}-ecs-task-exec-role"
   use_name_prefix = false
@@ -44,7 +44,7 @@ module "iam_role_ecs_task_exec_role" {
 
 module "ecs_sg" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "v6.0.0"
+  version = local.vars.versions.security_group
 
   create = local.vars.ecs.create
 

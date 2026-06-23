@@ -13,6 +13,7 @@ versions:
   s3: v5.14.0
   security_group: v6.0.0
   vpc: v6.6.1
+
 ec2:
   - name: ssm-proxy
     create: false
@@ -21,10 +22,10 @@ ecs:
 efs:
   create: false
 eks:
-  create: false
-  cluster_version: 1.32
+  create: true
+  cluster_version: 1.33
   sc:
-    gp3: false
+    gp3: true
     efs: false
   fargate_profile:
     - name: "core-dns"
@@ -34,7 +35,7 @@ eks:
             "eks.amazonaws.com/component": "coredns"
 iam:
   github_oidc:
-    repos: ["harik8/sandbox:*","harik8/hariprasad.dev:*","harik8/awsing:*"]
+    repos: ["harik8/manalpetti:*","harik8/hariprasad.dev:*","harik8/awsing:*"]
 rds:
   psql:
     create: false
@@ -44,5 +45,5 @@ vpc:
   create: true
   cidr: 10.100.0.0/16
   nat_gateway:
-    enable: false
+    enable: true
     single: true

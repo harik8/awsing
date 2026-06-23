@@ -5,13 +5,13 @@ on:
   push:
     branches:
       - main
-      - dev
+      - deploy
     paths:
       - tofu/*
   pull_request:
     branches:
       - main
-      - dev
+      - deploy
     paths:
       - tofu/*
 

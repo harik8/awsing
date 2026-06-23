@@ -34,3 +34,4 @@ provider "kubernetes" {
     args        = local.vars.eks.create ? ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--role-arn", "arn:aws:iam::${var.account_id}:role/${var.iac_role}", "--region", var.aws_region] : []
   }
 }
+

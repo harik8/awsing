@@ -48,21 +48,10 @@ module "eks" {
     vpc-cni = {
       most_recent = true
     }
-    # aws-efs-csi-driver = {
-    #   most_recent              = true
-    #   service_account_role_arn = "arn:aws:iam::${var.account_id}:role/${terraform.workspace}-efs-csi"
-    #   configuration_values = jsonencode({
-    #     replicaCount = 1
-    #     tolerations = [
-    #       {
-    #         key      = "application"
-    #         effect   = "NoSchedule"
-    #         operator = "Equal"
-    #         value    = "true"
-    #       }
-    #     ]
-    #   })
-    # }
+    aws-efs-csi-driver = {
+      most_recent              = true
+      service_account_role_arn = "arn:aws:iam::${var.account_id}:role/${terraform.workspace}-efs-csi"
+    }
   }
 }
 

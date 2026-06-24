@@ -13,6 +13,7 @@ versions:
   s3: v5.14.0
   security_group: v6.0.0
   vpc: v6.6.1
+
 ec2:
   - name: ssm-proxy
     create: false
@@ -22,7 +23,7 @@ efs:
   create: false
 eks:
   create: false
-  cluster_version: 1.32
+  cluster_version: 1.36
   sc:
     gp3: false
     efs: false
@@ -34,7 +35,7 @@ eks:
             "eks.amazonaws.com/component": "coredns"
 iam:
   github_oidc:
-    repos: ["harik8/sandbox:*","harik8/hariprasad.dev:*","harik8/awsing:*"]
+    repos: ["harik8/manalpetti:*","harik8/hariprasad.dev:*","harik8/awsing:*"]
 rds:
   psql:
     create: false

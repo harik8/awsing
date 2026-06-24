@@ -16,11 +16,11 @@ module "eks" {
   access_entries = {
     aws_admin = {
       kubernetes_groups = []
-      user_name         = "AWSAdmin"
-      principal_arn     = "arn:aws:iam::${var.account_id}:role/${var.iac_role}"
+      user_name         = "AWSEKSAdmin"
+      principal_arn     = "arn:aws:iam::${var.account_id}:role/aws-reserved/sso.amazonaws.com/${var.aws_region}/AWSReservedSSO_AdministratorAccess_0ada0c673e6da443",
 
       policy_associations = {
-        aws_admin = {
+        aws_eks_admin = {
           policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
           access_scope = {
             type = "cluster"
@@ -30,40 +30,33 @@ module "eks" {
     }
   }
 
-  addons = {
-    coredns = {
-      most_recent = true
-      configuration_values = jsonencode({
-        computeType = "Fargate"
-        autoScaling = {
-          enabled     = true
-          minReplicas = 2
-          maxReplicas = 2
-        }
-      })
-    }
-    kube-proxy = {
-      most_recent = true
-    }
-    vpc-cni = {
-      most_recent = true
-    }
-    aws-efs-csi-driver = {
-      most_recent              = true
-      service_account_role_arn = "arn:aws:iam::${var.account_id}:role/${terraform.workspace}-efs-csi"
-      configuration_values = jsonencode({
-        replicaCount = 1
-        tolerations = [
-          {
-            key      = "application"
-            effect   = "NoSchedule"
-            operator = "Equal"
-            value    = "true"
+  addons = merge(
+    {
+      coredns = {
+        most_recent = true
+        configuration_values = jsonencode({
+          computeType = "EC2"
+          autoScaling = {
+            enabled     = true
+            minReplicas = 2
+            maxReplicas = 2
           }
-        ]
-      })
-    }
-  }
+        })
+      }
+      kube-proxy = {
+        most_recent = true
+      }
+      vpc-cni = {
+        most_recent = true
+      }
+    },
+    local.vars.efs.create ? {
+      aws-efs-csi-driver = {
+        most_recent              = true
+        service_account_role_arn = "arn:aws:iam::${var.account_id}:role/${terraform.workspace}-efs-csi"
+      }
+    } : {}
+  )
 }
 
 module "fargate_profile" {
@@ -105,8 +98,7 @@ resource "aws_security_group_rule" "dns_udp" {
 }
 
 resource "kubernetes_storage_class_v1" "gp3" {
-
-  count = local.vars.eks.sc.gp3 ? 1 : 0
+  count = local.vars.eks.create && local.vars.eks.sc.gp3 ? 1 : 0
 
   metadata {
     name = "gp3"
@@ -126,8 +118,7 @@ resource "kubernetes_storage_class_v1" "gp3" {
 }
 
 resource "kubernetes_storage_class_v1" "efs" {
-
-  count = local.vars.eks.sc.efs ? 1 : 0
+  count = local.vars.eks.create && local.vars.eks.sc.efs ? 1 : 0
 
   metadata {
     name = "efs"
@@ -161,7 +152,7 @@ module "eks_managed_node_group" {
   cluster_primary_security_group_id = module.eks.cluster_primary_security_group_id
   vpc_security_group_ids            = [module.eks.node_security_group_id]
 
-  ami_type = "AL2_ARM_64"
+  ami_type = "AL2023_ARM_64_STANDARD"
 
   min_size     = 1
   max_size     = 1

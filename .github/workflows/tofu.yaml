@@ -65,4 +65,5 @@ jobs:
           tofu init
           tofu workspace select ${{ vars.TOFU_WORKSPACE }}
           tofu plan
+          sleep 10
           tofu apply -auto-approve

@@ -24,14 +24,14 @@ provider "aws" {
   }
 }
 
-# provider "kubernetes" {
-#   host                   = local.vars.eks.create ? module.eks.cluster_endpoint : "https://localhost"
-#   cluster_ca_certificate = local.vars.eks.create ? base64decode(module.eks.cluster_certificate_authority_data) : null
+provider "kubernetes" {
+  host                   = local.vars.eks.create ? module.eks.cluster_endpoint : "https://localhost"
+  cluster_ca_certificate = local.vars.eks.create ? base64decode(module.eks.cluster_certificate_authority_data) : null
 
-#   exec {
-#     api_version = "client.authentication.k8s.io/v1beta1"
-#     command     = "aws"
-#     args        = local.vars.eks.create ? ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--role-arn", "arn:aws:iam::${var.account_id}:role/${var.iac_role}", "--region", var.aws_region] : []
-#   }
-# }
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "aws"
+    args        = local.vars.eks.create ? ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--role-arn", "arn:aws:iam::${var.account_id}:role/${var.iac_role}", "--region", var.aws_region] : []
+  }
+}
 

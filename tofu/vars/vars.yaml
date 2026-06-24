@@ -25,7 +25,7 @@ eks:
   create: false
   cluster_version: 1.36
   sc:
-    gp3: true
+    gp3: false
     efs: false
   fargate_profile:
     - name: "core-dns"

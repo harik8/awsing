@@ -98,7 +98,6 @@ resource "aws_security_group_rule" "dns_udp" {
 }
 
 resource "kubernetes_storage_class_v1" "gp3" {
-
   count = local.vars.eks.create && local.vars.eks.sc.gp3 ? 1 : 0
 
   metadata {
@@ -119,7 +118,6 @@ resource "kubernetes_storage_class_v1" "gp3" {
 }
 
 resource "kubernetes_storage_class_v1" "efs" {
-
   count = local.vars.eks.create && local.vars.eks.sc.efs ? 1 : 0
 
   metadata {

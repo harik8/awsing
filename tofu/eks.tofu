@@ -30,29 +30,33 @@ module "eks" {
     }
   }
 
-  addons = {
-    coredns = {
-      most_recent = true
-      configuration_values = jsonencode({
-        computeType = "EC2"
-        autoScaling = {
-          enabled     = true
-          minReplicas = 2
-          maxReplicas = 2
-        }
-      })
-    }
-    kube-proxy = {
-      most_recent = true
-    }
-    vpc-cni = {
-      most_recent = true
-    }
-    aws-efs-csi-driver = {
-      most_recent              = true
-      service_account_role_arn = "arn:aws:iam::${var.account_id}:role/${terraform.workspace}-efs-csi"
-    }
-  }
+  addons = merge(
+    {
+      coredns = {
+        most_recent = true
+        configuration_values = jsonencode({
+          computeType = "EC2"
+          autoScaling = {
+            enabled     = true
+            minReplicas = 2
+            maxReplicas = 2
+          }
+        })
+      }
+      kube-proxy = {
+        most_recent = true
+      }
+      vpc-cni = {
+        most_recent = true
+      }
+    },
+    local.vars.efs.create ? {
+      aws-efs-csi-driver = {
+        most_recent              = true
+        service_account_role_arn = "arn:aws:iam::${var.account_id}:role/${terraform.workspace}-efs-csi"
+      }
+    } : {}
+  )
 }
 
 module "fargate_profile" {

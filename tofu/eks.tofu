@@ -16,11 +16,11 @@ module "eks" {
   access_entries = {
     aws_admin = {
       kubernetes_groups = []
-      user_name         = "AWSAdmin"
-      principal_arn     = "arn:aws:iam::${var.account_id}:role/${var.iac_role}"
+      user_name         = "AWSEKSAdmin"
+      principal_arn     = "arn:aws:sts::${var.account_id}:assumed-role/AWSReservedSSO_AdministratorAccess_0ada0c673e6da443/hari.karthigasu",
 
       policy_associations = {
-        aws_admin = {
+        aws_eks_admin = {
           policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
           access_scope = {
             type = "cluster"

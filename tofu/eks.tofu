@@ -97,44 +97,44 @@ resource "aws_security_group_rule" "dns_udp" {
   security_group_id        = module.eks.cluster_primary_security_group_id
 }
 
-# resource "kubernetes_storage_class_v1" "gp3" {
-#   count = local.vars.eks.create && local.vars.eks.sc.gp3 ? 1 : 0
-#
-#   metadata {
-#     name = "gp3"
-#     annotations = {
-#       "storageclass.kubernetes.io/is-default-class" = "true"
-#     }
-#   }
-#
-#   storage_provisioner    = "ebs.csi.aws.com"
-#   volume_binding_mode    = "WaitForFirstConsumer"
-#   allow_volume_expansion = false
-#
-#   parameters = {
-#     type      = "gp3"
-#     encrypted = "true"
-#   }
-# }
+resource "kubernetes_storage_class_v1" "gp3" {
+  count = local.vars.eks.create && local.vars.eks.sc.gp3 ? 1 : 0
 
-# resource "kubernetes_storage_class_v1" "efs" {
-#   count = local.vars.eks.create && local.vars.eks.sc.efs ? 1 : 0
-#
-#   metadata {
-#     name = "efs"
-#   }
-#
-#   storage_provisioner = "efs.csi.aws.com"
-#
-#   parameters = {
-#     provisioningMode = "efs-ap"
-#     fileSystemId     = module.efs.id
-#     directoryPerms   = "700"
-#   }
-#
-#   reclaim_policy      = "Delete"
-#   volume_binding_mode = "Immediate"
-# }
+  metadata {
+    name = "gp3"
+    annotations = {
+      "storageclass.kubernetes.io/is-default-class" = "true"
+    }
+  }
+
+  storage_provisioner    = "ebs.csi.aws.com"
+  volume_binding_mode    = "WaitForFirstConsumer"
+  allow_volume_expansion = false
+
+  parameters = {
+    type      = "gp3"
+    encrypted = "true"
+  }
+}
+
+resource "kubernetes_storage_class_v1" "efs" {
+  count = local.vars.eks.create && local.vars.eks.sc.efs ? 1 : 0
+
+  metadata {
+    name = "efs"
+  }
+
+  storage_provisioner = "efs.csi.aws.com"
+
+  parameters = {
+    provisioningMode = "efs-ap"
+    fileSystemId     = module.efs.id
+    directoryPerms   = "700"
+  }
+
+  reclaim_policy      = "Delete"
+  volume_binding_mode = "Immediate"
+}
 
 module "eks_managed_node_group" {
   source  = "terraform-aws-modules/eks/aws//modules/eks-managed-node-group"

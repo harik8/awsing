@@ -22,7 +22,7 @@ ecs:
 efs:
   create: false
 eks:
-  create: true
+  create: false
   cluster_version: 1.36
   sc:
     gp3: true
@@ -45,5 +45,5 @@ vpc:
   create: true
   cidr: 10.100.0.0/16
   nat_gateway:
-    enable: true
+    enable: false
     single: true

@@ -17,7 +17,7 @@ module "eks" {
     aws_admin = {
       kubernetes_groups = []
       user_name         = "AWSEKSAdmin"
-      principal_arn     = "arn:aws:sts::${var.account_id}:assumed-role/AWSReservedSSO_AdministratorAccess_0ada0c673e6da443/hari.karthigasu",
+      principal_arn     = "arn:aws:iam::${var.account_id}:role/aws-reserved/sso.amazonaws.com/${var.aws_region}/AWSReservedSSO_AdministratorAccess_0ada0c673e6da443",
 
       policy_associations = {
         aws_eks_admin = {
@@ -34,7 +34,7 @@ module "eks" {
     coredns = {
       most_recent = true
       configuration_values = jsonencode({
-        computeType = "Fargate"
+        computeType = "EC2"
         autoScaling = {
           enabled     = true
           minReplicas = 2
@@ -48,21 +48,21 @@ module "eks" {
     vpc-cni = {
       most_recent = true
     }
-    aws-efs-csi-driver = {
-      most_recent              = true
-      service_account_role_arn = "arn:aws:iam::${var.account_id}:role/${terraform.workspace}-efs-csi"
-      configuration_values = jsonencode({
-        replicaCount = 1
-        tolerations = [
-          {
-            key      = "application"
-            effect   = "NoSchedule"
-            operator = "Equal"
-            value    = "true"
-          }
-        ]
-      })
-    }
+    # aws-efs-csi-driver = {
+    #   most_recent              = true
+    #   service_account_role_arn = "arn:aws:iam::${var.account_id}:role/${terraform.workspace}-efs-csi"
+    #   configuration_values = jsonencode({
+    #     replicaCount = 1
+    #     tolerations = [
+    #       {
+    #         key      = "application"
+    #         effect   = "NoSchedule"
+    #         operator = "Equal"
+    #         value    = "true"
+    #       }
+    #     ]
+    #   })
+    # }
   }
 }
 

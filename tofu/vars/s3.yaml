@@ -45,6 +45,7 @@
           }
       ]
     }
+    
 - name: nobleworkfoundation
   lifecycle_rule:
     - id: "logs"
@@ -63,6 +64,12 @@
       filter:
         prefix: "ELOLXQI0OGFQQ."
       expiration:
+        days: 30
+    - id: "static"
+      enabled: true
+      filter:
+        prefix: "static/"
+      noncurrent_version_expiration:
         days: 30
   policy: |
     {

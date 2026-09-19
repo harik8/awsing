@@ -34,6 +34,7 @@
     acm_certificate_arn: "arn:aws:acm:us-east-1:${account_id}:certificate/2cb55fa7-d525-41db-aab8-fa2342109c07"
     minimum_protocol_version: "TLSv1.2_2021"
     ssl_support_method: "sni-only"
+    
 - name: nobleworkfoundation
   aliases:
     - nobleworkfoundation.org
@@ -56,6 +57,7 @@
     cached_methods: ["GET", "HEAD"]
     compress: true
     query_string: false
+    cache_policy_name: "Managed-CachingOptimized"
   ordered_cache_behavior:
     - path_pattern: "/img/*"
       target_origin_id: "s3_nobleworkfoundation"
@@ -64,6 +66,7 @@
       cached_methods: ["GET", "HEAD"]
       compress: true
       query_string: false
+      cache_policy_name: "Managed-CachingOptimized"
     - path_pattern: "/icons/*"
       target_origin_id: "s3_nobleworkfoundation"
       viewer_protocol_policy: "redirect-to-https"

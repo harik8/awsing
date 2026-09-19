@@ -11,6 +11,7 @@ module "s3" {
 
   attach_policy = can(local.s3_vars[count.index]["policy"])
   policy        = try(local.s3_vars[count.index]["policy"], {})
+  lifecycle_rule = try(local.s3_vars[count.index]["lifecycle_rule"], {})
 
   server_side_encryption_configuration = {
     rule = {

@@ -7,6 +7,7 @@
   create_oai: false
   logging_config:
     bucket: ${workspace}-hp-dev.s3.${aws_region}.amazonaws.com
+    prefix: "logs/"
   origin:
     s3_hp_dev:
       domain_name:  "${workspace}-hp-dev.s3.${aws_region}.amazonaws.com"
@@ -19,6 +20,7 @@
     cached_methods: ["GET", "HEAD"]
     compress: true
     query_string: true
+    cache_policy_name: "Managed-CachingOptimized"
   ordered_cache_behavior:
     - path_pattern: "/static/*"
       target_origin_id: "s3_hp_dev"
@@ -27,6 +29,7 @@
       cached_methods: ["GET", "HEAD"]
       compress: true
       query_string: true
+      cache_policy_name: "Managed-CachingOptimized"
   viewer_certificate:
     acm_certificate_arn: "arn:aws:acm:us-east-1:${account_id}:certificate/2cb55fa7-d525-41db-aab8-fa2342109c07"
     minimum_protocol_version: "TLSv1.2_2021"
@@ -40,6 +43,7 @@
   create_oai: false
   logging_config:
     bucket: ${workspace}-nobleworkfoundation.s3.${aws_region}.amazonaws.com
+    prefix: "logs/"
   origin:
     s3_nobleworkfoundation:
       domain_name: "${workspace}-nobleworkfoundation.s3.${aws_region}.amazonaws.com"
